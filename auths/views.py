@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login as auth_login, logout
 
 from django.contrib.auth.models import auth
 from django.core.validators import validate_email
@@ -94,7 +94,22 @@ def reset(request):
             
         return render(request, 'auths/login.html')
 
-
-
-
-
+def admin_login(request):
+    error = None
+    if request.method == 'POST':
+        # Retrieve credentials from form submission.
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        # Authenticate the user.
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            # Check if the user is an admin.
+            if user.is_staff or user.is_superuser:
+                auth_login(request, user)  # Call the aliased login function.
+                # Redirect to the desired page.
+                return redirect('pokemon:generate_create')  # Use URL name if possible.
+            else:
+                error = "Not an admin"
+        else:
+            error = "Invalid credentials"
+    return render(request, 'pokemon/generate.html', {'error': error})

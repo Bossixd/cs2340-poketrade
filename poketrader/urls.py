@@ -22,4 +22,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("auths/", include("auths.urls")),
     path("pokemon/", include("pokemon.urls")),
+    path("landing/", include("landing.urls")),
+    path("pokehub/", include("pokehub.urls")),
 ]
