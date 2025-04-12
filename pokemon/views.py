@@ -1,3 +1,9 @@
+from django.contrib.auth import authenticate, login as auth_login, logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+
+from auths.views import login
+
 from django.shortcuts import render
 from .models import Pokemon, Card
 
@@ -13,7 +19,18 @@ def list(request):
     cards = Card.objects.filter(pokemon_info__name="Pikachu")
     return render(request, 'pokemon/list.html', {'cards': cards})
 
+@login_required(login_url='pokemon:generate')
 def generate(request):
+    user = request.user
+    if user is not None:
+        # Check if the user is an admin. You can change this to your preferred flag.
+        print(user.is_staff)
+        if not user.is_staff:
+            return redirect('/landing')
+    else:
+        print("redirect")
+        return redirect('/landing')
+        
     if request.method == "GET":
         return render(request, 'pokemon/generate.html')
     elif request.method == "POST":
