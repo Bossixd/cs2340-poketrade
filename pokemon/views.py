@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
+
 from auths.views import login
 
 from django.shortcuts import render
