@@ -67,7 +67,7 @@
         {% endfor %}
     {% elif cards.count == 0 %}
         <p>No Pokémon matched your search. Please search again.</p>
-    {% elif cards.count <= 1000 and query %}
+    {% elif cards.count <= 10000 and query %}
         {% for card in cards %}
             <div class="card">
                 <img src="{{card.small_image}}" alt="Pokémon Card">
