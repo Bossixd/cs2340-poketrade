@@ -24,5 +24,5 @@ urlpatterns = [
     path("pokemon/", include("pokemon.urls")),
     path("landing/", include("landing.urls")),
     path("pokehub/", include("pokehub.urls")),
-    path('accounts/', include('accounts.urls', namespace='accounts'))
+    path('accounts/', include('accounts.urls')),
 ]
