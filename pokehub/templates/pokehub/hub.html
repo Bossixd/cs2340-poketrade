@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Main Hub</title>
+  {% load static %}
+  <style>
+    /* Ensure padding and borders are part of the element's total width */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+    /* Header styling with full width */
+    header {
+      background: #003057;
+      color: #fff;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    header a {
+      text-decoration: none;
+      margin: 0 10px;
+    }
+    /* Styling for authentication buttons */
+    .logout {
+      font-size: 1rem;
+      padding: 10px 20px;
+      background: #007bff;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+    }
+    .logout:hover {
+      background: #0056b3;
+    }
+    /* Main content styling */
+    main {
+      padding: 40px;
+      text-align: center;
+    }
+    /* Hamburger Dropdown Styles */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    .dropbtn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      padding: 0;
+      margin: 0;
+    }
+    .hamburger .bar {
+      width: 25px;
+      height: 3px;
+      background-color: #fff;
+      margin: 4px 0;
+    }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;      /* Position below the button */
+      left: 0;        /* Align to left edge */
+      background-color: #fff;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+    .dropdown-content a {
+      color: #003057;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+    }
+    .dropdown-content a:hover {
+      background-color: #ddd;
+    }
+    /* Show dropdown on hover */
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <!-- Hamburger Dropdown Menu -->
+    <div class="dropdown">
+      <button class="dropbtn">
+        <div class="hamburger">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      </button>
+      <div class="dropdown-content">
+        <a href="/pokemon/list">pokemonlist</a>
+      </div>
+    </div>
+
+    <!-- Authentication Controls -->
+    <div>
+      {% if authenticated %}
+        <a href="{% url 'auths:logout' %}">
+          <button type="button" class="logout">Logout</button>
+        </a>
+      {% else %}
+        <a href="{% url 'auths:login' %}">
+          <button type="button" class="logout">Login</button>
+        </a>
+        <a href="{% url 'auths:register' %}">
+          <button type="button" class="logout">Register</button>
+        </a>
+      {% endif %}
+    </div>
+  </header>
+
+  <main>
+    <h1>Welcome to the Main Hub Page</h1>
+    <p>This is the central area of the website where you can navigate to various sections.</p>
+  </main>
+</body>
+</html>

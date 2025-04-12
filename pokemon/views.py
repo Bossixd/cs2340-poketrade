@@ -1,4 +1,8 @@
-from django.shortcuts import render
+from django.contrib.auth import authenticate, login as auth_login, logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+
+from auths.views import login
 from .models import Pokemon, Card
 
 import os
@@ -14,62 +18,39 @@ def list(request):
     return render(request, 'pokemon/list.html', {'cards': cards})
 
 def generate(request):
-    if request.method == "GET":
-        return render(request, 'pokemon/generate.html')
-    elif request.method == "POST":
-        
-        name = request.POST.get('name')
-        type = request.POST.get('type')
-        secondary_type = request.POST.get('secondary-type')
-        hp = request.POST.get('hp')
-        shiny = request.POST.get('shiny')
-        legendary = request.POST.get('legendary')
-        mega = request.POST.get('mega')
-        description = request.POST.get('description')
-        
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {OPENAPI_KEY}',
-        }
-        
-        prompt = f"One Pokemon Card Only and nothing else. Name: {name}. {type} {secondary_type if secondary_type else ''} {hp} health points. {'Shiny' if shiny else ''} {'Legendary' if legendary else ''} {'Mega' if mega else ''}. {description}"
+    """
+    This view handles the login form.
+    It should be mapped to the URL /pokemon/generate.
+    """
+    error = None
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            # Check if the user is an admin. You can change this to your preferred flag.
+            if user.is_staff:
+                auth_login(request, user)
+                # Redirect admin users to the create page.
+                return redirect('pokemon:generate_create')
+            else:
+                error = "You are not authorized to access this page."
+        else:
+            error = "Invalid credentials. Please try again."
+    return render(request, 'pokemon/generate.html', {'error': error})
 
-        json_data = {
-            'prompt': prompt,
-            'n': 1,
-            'size': '1024x1792',
-            'model': 'dall-e-3',
-        }
 
-        response = requests.post('https://api.openai.com/v1/images/generations', headers=headers, json=json_data)
-        
-        url = response.json()['data'][0]['url']
+@login_required(login_url='pokemon:generate')
+def generate_create(request):
+    """
+    This view handles the creation functionality.
+    It is only accessible by logged-in users.
+    Additional check: if the user is not an admin, you can also choose
+    to either show an error or redirect them.
+    """
+    if not request.user.is_staff:
+        # Optionally, you can add a message informing the user or simply redirect.
+        return redirect('pokemon:generate')
 
-        pokemon = Pokemon(name=name)
-        pokemon.save()
-        
-        card = Card(pokemon_info=pokemon, type=f"{type}, {secondary_type}", hp=hp, small_image=url, large_image=url)
-        card.save()
-        
-        context = {
-            'name': name,
-            'type': type.lower(),
-            'secondary_type': secondary_type.lower(),
-            'hp': hp,
-            'image_url': url
-        }
-
-        return render(request, 'pokemon/card.html', context=context)
-    
-def card(request):
-    id = request.GET['id']
-    card = Card.objects.get(id=id)
-    
-    context = {
-        'name': card.pokemon_info.name,
-        'type': card.type.split(",")[0].lower(),
-        'secondary_type': card.type.split(",")[1].lower() if len(card.type.split(",")) > 1 else None,
-        'hp': card.hp,
-        'image_url': card.large_image
-    }
-    return render(request, 'pokemon/card.html', context=context)
+    # Your logic for generating/creating Pokemon would go here.
+    return render(request, 'pokemon/create.html')
