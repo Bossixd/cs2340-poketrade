@@ -6,6 +6,10 @@
     <input type="text" name="q" placeholder="Search Pokémon by id, name, hp, or type..." value="{{ query }}" style="width: 400px; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
     <button type="submit" style="padding: 10px 15px; border-radius: 5px; border: none; background-color: #4CAF50; color: white; cursor: pointer;">Search</button>
             <button type="button" class="return-btn" onclick="location.href='?q='" style="padding: 10px 15px; border-radius: 5px; border: none; background-color: #000000; color: white; cursor: pointer; ">Return</button>
+            <button type="button" class="display-all-btn" onclick="location.href='?q=$$$all'"
+            style="padding: 10px 15px; border-radius: 5px; border: none; background-color: #008CBA; color: white; cursor: pointer;">
+        Display All
+    </button>
 </form>
 
     <meta charset="UTF-8">
@@ -55,7 +59,13 @@
 <body>
 
 <div class="container">
-    {% if cards.count == 0 %}
+    {% if query == "$$$all" %}
+        {% for card in cards %}
+            <div class="card">
+                <img src="{{card.small_image}}" alt="Pokémon Card">
+            </div>
+        {% endfor %}
+    {% elif cards.count == 0 %}
         <p>No Pokémon matched your search. Please search again.</p>
     {% elif cards.count <= 1000 and query %}
         {% for card in cards %}
@@ -66,7 +76,7 @@
     {% elif query %}
         <p>Too many Pokémon matched your search. Please refine your search.</p>
     {% else %}
-        <p>Too many Pokémon are available. Please refine by searching.</p>
+        <p>Too many Pokémon are available. Please refine by searching or click display all above.</p>
     {% endif %}
 </div>
 

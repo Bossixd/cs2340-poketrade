@@ -25,7 +25,9 @@ def list(request):
     if query:
         filters = Q()
 
-        if query:
+        if query == "$$$all":
+            Card.objects.all()
+        elif query:
             filters = (
                     Q(pokemon_info__name__icontains=query) |
                     Q(type__icontains=query)
