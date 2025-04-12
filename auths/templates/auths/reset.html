@@ -1,0 +1,39 @@
+{% extends 'auths/base.html' %}
+
+{% block title %}Reset{% endblock title %} 
+
+{% block content %}
+<div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center">
+    <div style="background: white; padding: 18px; border-radius: 8px;">
+        <form action="{% url 'auths:reset' %}" method="post">
+            {% csrf_token %}
+            <div style="padding-top: 12px; padding-bottom: 18px; font-size: 48px; font-weight: bold; width: 100%; display: flex; justify-content: center;">Reset Password</div>
+            <div style="display: flex; flex-direction: column; padding: 12px; gap: 24px; font-size: 24px;">
+                <div style="display: flex; flex-direction: column;">
+                    Email Address
+                    <input type="text" name="email" id="email" placeholder="Email" size="70" style="line-height: 2em; font-size: 14px;">
+                    {% if error_type == "email" %}
+                        <p style="color: red; font-size: 14px;">{{ error }}</p>
+                    {% endif %}
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    Password
+                    <input type="password" name="password" id="password" placeholder="Password" size="70" style="line-height: 2em; font-size: 14px;">
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    Confirm Password
+                    <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" size="70" style="line-height: 2em; font-size: 14px;">
+                    {% if error_type == "password" %}
+                        <p style="color: red; font-size: 14px;">{{ error }}</p>
+                    {% endif %}
+                </div>
+                <input type="submit" value="Reset Password" style="font-size: 18px; color: white; background: rgb(179,163,105); border: 0; height: 36px; background: linear-gradient(225deg, rgba(179,163,105,1) 9%, rgba(0,48,87,1) 100%);">
+            </div>
+        </form>
+        <div style="height: 120px"></div>
+        <div style="width: 100%; display: flex; justify-content: center;">
+            Remember your password?&nbsp;<a href="{% url 'auths:login' %}">Login!</a>
+        </div>
+    </div>
+</div>
+{% endblock content %}

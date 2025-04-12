@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock title %}</title>
+</head>
+<body style="margin: 0px; font-family: Arial, sans-serif; overflow: scroll;">
+    {% for card in cards %}
+        <div>
+            <div>Name: {{card.name}}</div>
+            <div>Type: {{card.type}}</div>
+            <img src="{{card.small_image}}">
+        </div>
+    {% endfor%}
+</body>
+</html> 

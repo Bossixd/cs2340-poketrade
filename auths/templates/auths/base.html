@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock title %}</title>
+</head>
+<body style="margin: 0px; font-family: Arial, sans-serif; overflow: hidden;">
+    <div style="position: absolute; width: 100vw; height: 72px; background-color: white; display: flex; align-items: center; padding-left: 24px;">
+        <div style="font-weight: bold; font-size: 48px;" onclick="window.location.href = '/'">
+            GT Movies
+        </div>
+    </div>
+    <div style="width: 100vw; height: 100vh; margin: 0; background: rgb(179,163,105); background: linear-gradient(225deg, rgba(179,163,105,1) 9%, rgba(0,48,87,1) 100%);">
+        {% block content %}{% endblock content %}
+    </div>
+</body>
+</html>
