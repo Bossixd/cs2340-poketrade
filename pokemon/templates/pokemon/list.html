@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<br>
+    <form method="GET" action="">
+    <input type="text" name="q" placeholder="Search Pokémon by id, name, hp, or type..." value="{{ query }}" style="width: 400px; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+    <button type="submit" style="padding: 10px 15px; border-radius: 5px; border: none; background-color: #4CAF50; color: white; cursor: pointer;">Search</button>
+            <button type="button" class="return-btn" onclick="location.href='?q='" style="padding: 10px 15px; border-radius: 5px; border: none; background-color: #000000; color: white; cursor: pointer; ">Return</button>
+</form>
+
     <meta charset="UTF-8">
     <title>{% block title %}Card Gallery{% endblock title %}</title>
     <style>
@@ -26,7 +33,6 @@
         .card {
             background-color: #ffffff;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             margin: 15px;
             padding: 15px;
             width: 200px;
@@ -44,34 +50,24 @@
             margin-top: 10px;
         }
 
-        .button {
-            padding: 10px 20px;
-            margin: 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            transition: background-color 0.3s ease;
-        }
-
-        .button:hover {
-            background-color: #45a049;
-        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    {% for card in cards %}
-        <div class="card">
-            <div><strong>{{card.name}}</strong></div>
-            <div>{{card.type}}</div>
-            <img src="{{card.small_image}}" alt="{{card.name}}">
-        </div>
-    {% endfor %}
+    {% if cards.count == 0 %}
+        <p>No Pokémon matched your search. Please search again.</p>
+    {% elif cards.count <= 1000 and query %}
+        {% for card in cards %}
+            <div class="card">
+                <img src="{{card.small_image}}" alt="Pokémon Card">
+            </div>
+        {% endfor %}
+    {% elif query %}
+        <p>Too many Pokémon matched your search. Please refine your search.</p>
+    {% else %}
+        <p>Too many Pokémon are available. Please refine by searching.</p>
+    {% endif %}
 </div>
 
 

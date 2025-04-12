@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from django.db.models import Q
+from .models import Card
 
 
 from auths.views import login
@@ -17,8 +19,26 @@ OPENAPI_KEY = os.getenv("OPENAPI_KEY")
 
 # Create your views here.
 def list(request):
-    cards = Card.objects.filter(pokemon_info__name="Pikachu")
-    return render(request, 'pokemon/list.html', {'cards': cards})
+    query = request.GET.get("q") or ''
+    cards = Card.objects.all()
+
+    if query:
+        filters = Q()
+
+        if query:
+            filters = (
+                    Q(pokemon_info__name__icontains=query) |
+                    Q(type__icontains=query)
+            )
+
+            if query.isdigit():
+                filters |= Q(id=int(query)) | Q(hp=int(query))
+
+        cards = Card.objects.filter(filters).distinct()
+
+    context = {'cards': cards, 'query': query}
+    return render(request, 'pokemon/list.html', context)
+
 
 @login_required(login_url='pokemon:generate')
 def generate(request):
