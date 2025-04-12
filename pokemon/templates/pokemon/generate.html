@@ -1,74 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <title>{% block title %}{% endblock title %}</title>
-    </head>
-    <body style="margin: 0px; font-family: Arial, sans-serif; overflow: scroll">
-        <form action="{% url 'auths:login' %}" method="post">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock title %}</title>
+    <style>
+        /* Pokémon-themed styling */
+        :root {
+            --pokemon-red: #FF0000;
+            --pokemon-blue: #3B4CCA;
+            --pokemon-yellow: #FFDE00;
+            --pokemon-light: #F8F8F8;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: var(--pokemon-light);
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--pokemon-red);
+            text-shadow: 3px 3px 0 var(--pokemon-yellow);
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: var(--pokemon-blue);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--pokemon-blue);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            padding-right: 10px;
+            border: 2px solid var(--pokemon-blue);
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            padding-right: 10px;
+            border: 2px solid var(--pokemon-blue);
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .generate-btn {
+            background-color: var(--pokemon-red);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            font-weight: bold;
+        }
+
+        .generate-btn:hover {
+            background-color: #CC0000;
+            transform: scale(1.05);
+        }
+
+        .generate-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Poké Ball divider (optional) */
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Pokémon Generator</h1>
+        </div>
+
+        <form id="pokemon-form" action="{% url 'pokemon:generate' %}" method="post">
             {% csrf_token %}
-            <div
-                style="
-                    padding-top: 12px;
-                    padding-bottom: 18px;
-                    font-size: 48px;
-                    font-weight: bold;
-                    width: 100%;
-                    display: flex;
-                    justify-content: center;
-                "
-            >
-                Generate Pokemon!
+            <div class="form-group">
+                <label for="name">Pokémon Name</label>
+                <input type="text" id="name" name="name" placeholder="e.g., Pikachu" required>
             </div>
-            <div
-                style="
-                    display: flex;
-                    flex-direction: column;
-                    padding: 12px;
-                    gap: 24px;
-                    font-size: 24px;
-                "
-            >
-                <div style="display: flex; align-items: center; gap: 12px">
-                    Username
-                    <input
-                        type="text"
-                        name="username"
-                        id="username"
-                        placeholder="Username"
-                        size="70"
-                        style="line-height: 2em; font-size: 14px"
-                    />
-                </div>
-                <div style="display: flex; align-items: center; gap: 12px">
-                    Password
-                    <input
-                        type="password"
-                        name="password"
-                        id="password"
-                        placeholder="Password"
-                        size="70"
-                        style="line-height: 2em; font-size: 14px"
-                    />
-                </div>
-                <p style="color: red; font-size: 14px">{{ error }}</p>
-                <input
-                    type="submit"
-                    value="Login"
-                    style="
-                        font-size: 18px;
-                        color: white;
-                        background: rgb(179, 163, 105);
-                        border: 0;
-                        height: 36px;
-                        background: linear-gradient(
-                            225deg,
-                            rgba(179, 163, 105, 1) 9%,
-                            rgba(0, 48, 87, 1) 100%
-                        );
-                    "
-                />
+
+            <div class="form-group">
+                <label for="type">Primary Type</label>
+                <select id="type" name="type" required>
+                    <option value="">Select a type...</option>
+                    <option value="fire">Fire</option>
+                    <option value="water">Water</option>
+                    <option value="grass">Grass</option>
+                    <option value="electric">Electric</option>
+                    <option value="psychic">Psychic</option>
+                    <option value="dragon">Dragon</option>
+                    <option value="fairy">Fairy</option>
+                </select>
             </div>
+
+            <div class="form-group">
+                <label for="secondary-type">Secondary Type (Optional)</label>
+                <select id="secondary-type" name="secondary-type">
+                    <option value="">None</option>
+                    <option value="flying">Flying</option>
+                    <option value="poison">Poison</option>
+                    <option value="ground">Ground</option>
+                    <option value="ice">Ice</option>
+                    <option value="fighting">Fighting</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="hp">HP (10-300)</label>
+                <input type="number" id="hp" name="hp" min="10" max="300" value="100">
+            </div>
+
+            <div class="form-group">
+                <label>Special Features</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="shiny" id="shiny">
+                        Shiny Variant
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="legendary" id="legendary">
+                        Legendary
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="mega" id="mega">
+                        Mega Evolution
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" placeholder="Describe your Pokémon..."></textarea>
+            </div>
+
+            <button type="submit" class="generate-btn">Generate Pokémon!</button>
         </form>
-    </body>
+    </div>
+</body>
 </html>

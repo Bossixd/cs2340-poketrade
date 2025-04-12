@@ -10,7 +10,7 @@ django.setup()
 
 from pokemon.models import Pokemon, Card
 
-df = pd.read_csv("cleaned_pokemons.csv")
+df = pd.read_csv("scraper/cleaned_pokemons.csv")
 
 for index, row in df.iterrows():
     name = row['name']

@@ -1,10 +1,75 @@
 from django.shortcuts import render
 from .models import Pokemon, Card
 
+import os
+from dotenv import load_dotenv
+import requests
+
+load_dotenv()
+OPENAPI_KEY = os.getenv("OPENAPI_KEY")
+
 # Create your views here.
 def list(request):
     cards = Card.objects.filter(pokemon_info__name="Pikachu")
     return render(request, 'pokemon/list.html', {'cards': cards})
 
 def generate(request):
-    return render(request, 'pokemon/generate.html')
+    if request.method == "GET":
+        return render(request, 'pokemon/generate.html')
+    elif request.method == "POST":
+        
+        name = request.POST.get('name')
+        type = request.POST.get('type')
+        secondary_type = request.POST.get('secondary-type')
+        hp = request.POST.get('hp')
+        shiny = request.POST.get('shiny')
+        legendary = request.POST.get('legendary')
+        mega = request.POST.get('mega')
+        description = request.POST.get('description')
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {OPENAPI_KEY}',
+        }
+        
+        prompt = f"One Pokemon Card Only and nothing else. Name: {name}. {type} {secondary_type if secondary_type else ''} {hp} health points. {'Shiny' if shiny else ''} {'Legendary' if legendary else ''} {'Mega' if mega else ''}. {description}"
+
+        json_data = {
+            'prompt': prompt,
+            'n': 1,
+            'size': '1024x1792',
+            'model': 'dall-e-3',
+        }
+
+        response = requests.post('https://api.openai.com/v1/images/generations', headers=headers, json=json_data)
+        
+        url = response.json()['data'][0]['url']
+
+        pokemon = Pokemon(name=name)
+        pokemon.save()
+        
+        card = Card(pokemon_info=pokemon, type=f"{type}, {secondary_type}", hp=hp, small_image=url, large_image=url)
+        card.save()
+        
+        context = {
+            'name': name,
+            'type': type.lower(),
+            'secondary_type': secondary_type.lower(),
+            'hp': hp,
+            'image_url': url
+        }
+
+        return render(request, 'pokemon/card.html', context=context)
+    
+def card(request):
+    id = request.GET['id']
+    card = Card.objects.get(id=id)
+    
+    context = {
+        'name': card.pokemon_info.name,
+        'type': card.type.split(",")[0].lower(),
+        'secondary_type': card.type.split(",")[1].lower() if len(card.type.split(",")) > 1 else None,
+        'hp': card.hp,
+        'image_url': card.large_image
+    }
+    return render(request, 'pokemon/card.html', context=context)

@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Card Generator</title>
+    <style>
+        :root {
+            --pokemon-red: #FF0000;
+            --pokemon-blue: #3B4CCA;
+            --pokemon-yellow: #FFDE00;
+            --pokemon-light: #F8F8F8;
+            --type-fire: #EE8130;
+            --type-water: #6390F0;
+            --type-grass: #7AC74C;
+            --type-electric: #F7D02C;
+            --type-lightning: #F7D02C;
+            --type-psychic: #F95587;
+            --type-dragon: #6F35FC;
+            --type-fairy: #D685AD;
+            --type-flying: #A98FF3;
+            --type-poison: #A33EA1;
+            --type-ground: #E2BF65;
+            --type-ice: #96D9D6;
+            --type-fighting: #C22E28;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: var(--pokemon-light);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .pokemon-card {
+            width: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            border: 5px solid var(--pokemon-yellow);
+        }
+
+        .card-header {
+            background: var(--pokemon-red);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .card-name {
+            margin: 0;
+            font-size: 24px;
+            text-transform: capitalize;
+            letter-spacing: 1px;
+        }
+
+        .card-hp {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: white;
+            color: var(--pokemon-red);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .card-image {
+            height: 600px;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-image img {
+            max-height: 80%;
+            max-width: 80%;
+            height: 80%;
+            transition: transform 0.3s;
+        }
+
+        .pokemon-card:hover .card-image img {
+            transform: scale(1.1);
+        }
+
+        .card-types {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            flex-wrap: wrap;
+        }
+
+        .type-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-details {
+            padding: 15px;
+            background: white;
+            text-align: center;
+        }
+
+        .hp-text {
+            font-weight: bold;
+            color: var(--pokemon-blue);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="pokemon-card">
+        <div class="card-header">
+            <h2 class="card-name">{{ name }}</h2>
+            <div class="card-hp">HP {{ hp }}</div>
+        </div>
+        <div class="card-image">
+            <img src="{{ image_url }}" alt="{{ name }}">
+        </div>
+        <div class="card-types">
+            <div class="type-badge" style="background-color: var(--type-{{ type }});">{{ type }}</div>
+            {% if secondary_type %}
+                <div class="type-badge" style="background-color: var(--type-{{ secondary_type }});">{{ secondary_type }}</div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
