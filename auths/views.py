@@ -52,14 +52,19 @@ def login(request):
     if request.method == "GET":
         return render(request, 'auths/login.html')
     elif request.method == "POST":
-        user = authenticate(request, username=request.POST["username"], password=request.POST["password"])
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
         if user is not None:
-            auth.login(request, user)
-            return HttpResponseRedirect(reverse("landing:landing_page"))
-    
+            if user.profile.is_banned:
+                return render(request, 'auths/login.html', {
+                    "error": "Your account has been banned. Please contact support."
+                })
+            auth_login(request, user)
+            return redirect("landing:landing_page")
     return render(request, 'auths/login.html', {
-            "error": "Invalid Login Credentials"
-        })
+        "error": "Invalid login credentials."
+    })
 
 def logout(request):
     auth.logout(request)

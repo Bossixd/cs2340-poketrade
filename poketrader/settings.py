@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     "pokemon",
     "auths",
     "landing",
-    "pokehub"
+    "pokehub",
+    "accounts"
 ]
 
 MIDDLEWARE = [
