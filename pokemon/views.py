@@ -1,5 +1,7 @@
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.decorators import login_required
+from django.http.response import HttpResponse
 from django.shortcuts import render, redirect
 from django.db.models import Q
 from .models import Card
@@ -133,3 +135,49 @@ def card(request):
         'image_url': card.large_image
     }
     return render(request, 'pokemon/card.html', context=context)
+
+
+@staff_member_required
+def create_starter_cards(request):
+    """
+    Admin-only view to create starter Pokémon cards if they don't exist.
+    This ensures there are proper starter cards to give to new users.
+    """
+    # Define starter Pokémon with their types and HP values
+    starter_data = [
+        {'name': 'Bulbasaur', 'type': 'grass', 'hp': 45,
+         'small_image': '/static/pokemon/starters/bulbasaur_small.jpg',
+         'large_image': '/static/pokemon/starters/bulbasaur_large.jpg'},
+        {'name': 'Charmander', 'type': 'fire', 'hp': 39,
+         'small_image': '/static/pokemon/starters/charmander_small.jpg',
+         'large_image': '/static/pokemon/starters/charmander_large.jpg'},
+        {'name': 'Squirtle', 'type': 'water', 'hp': 44,
+         'small_image': '/static/pokemon/starters/squirtle_small.jpg',
+         'large_image': '/static/pokemon/starters/squirtle_large.jpg'},
+        {'name': 'Pikachu', 'type': 'electric', 'hp': 35,
+         'small_image': '/static/pokemon/starters/pikachu_small.jpg',
+         'large_image': '/static/pokemon/starters/pikachu_large.jpg'},
+    ]
+
+    created_count = 0
+
+    # Create each starter Pokémon if it doesn't exist
+    for data in starter_data:
+        # Check if this Pokémon already exists
+        pokemon, created = Pokemon.objects.get_or_create(
+            name=data['name'],
+            defaults={'pokedexNumber': 0}  # This would normally be set to the proper Pokédex number
+        )
+
+        # Check if a card exists for this Pokémon
+        if not Card.objects.filter(pokemon_info=pokemon).exists():
+            Card.objects.create(
+                pokemon_info=pokemon,
+                type=data['type'],
+                hp=data['hp'],
+                small_image=data['small_image'],
+                large_image=data['large_image']
+            )
+            created_count += 1
+
+    return HttpResponse(f'Created {created_count} new starter Pokémon cards')
