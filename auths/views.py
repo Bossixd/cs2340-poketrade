@@ -70,7 +70,8 @@ def login(request):
 
 def logout(request):
     auth.logout(request)
-    return redirect("/")
+    # Redirect to hub page instead of homepage
+    return redirect("/pokehub/hub?page=1")
 
 def reset(request):
     if request.method == "GET":

@@ -32,10 +32,12 @@
                 width: 200px;
                 text-align: center;
                 transition: transform 0.3s ease;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             }
 
             .card:hover {
                 transform: translateY(-10px);
+                box-shadow: 0 10px 15px rgba(0,0,0,0.2);
             }
 
             .card img {
@@ -89,6 +91,49 @@
             .auth-btn:hover {
                 background: #0056b3;
             }
+
+            .info-message {
+                background-color: #e7f3ff;
+                border: 1px solid #cce5ff;
+                color: #0c5460;
+                padding: 10px 15px;
+                border-radius: 5px;
+                margin: 15px auto;
+                text-align: center;
+                max-width: 600px;
+            }
+
+            .hub-actions {
+                display: flex;
+                gap: 15px;
+                justify-content: center;
+                margin: 20px 0;
+            }
+
+            .hub-btn {
+                padding: 10px 20px;
+                background: #007bff;
+                color: white;
+                text-decoration: none;
+                border-radius: 6px;
+                font-weight: bold;
+            }
+
+            .hub-btn:hover {
+                background: #0056b3;
+            }
+
+            main {
+                padding: 20px;
+                text-align: center;
+            }
+
+            .section-title {
+                margin-top: 30px;
+                margin-bottom: 15px;
+                color: #003057;
+                font-size: 24px;
+            }
         </style>
     </head>
     <body>
@@ -111,38 +156,59 @@
                 </form>
                 {% else %}
                 <a href="{% url 'auths:login' %}" class="auth-btn">Login</a>
-                <a href="{% url 'auths:register' %}" class="auth-btn"
-                    >Register</a
-                >
+                <a href="{% url 'auths:register' %}" class="auth-btn">Register</a>
                 {% endif %}
             </div>
         </header>
 
         <main>
             <h1>
-                Welcome{% if user.is_authenticated %}, {{ user.username }} {% endif %}!
+                Welcome{% if user.is_authenticated %}, {{ user.username }}{% endif %}!
             </h1>
             <p>Your central hub for all Pokémon activities.</p>
 
             {% if user.is_authenticated %}
             <div class="hub-actions">
-                <a href="{% url 'pokemon:list' %}" class="hub-btn"
-                    >View Pokémon</a
-                >
-                <a href="{% url 'accounts:profile' %}">My Profile</a>
+                <a href="{% url 'pokemon:list' %}" class="hub-btn">View Pokémon</a>
+                <a href="{% url 'accounts:profile' %}" class="hub-btn">My Profile</a>
+            </div>
+            {% else %}
+            <div class="info-message">
+                <p>You're browsing as a guest. <a href="{% url 'auths:login' %}">Sign in</a> to collect cards and access your personal profile!</p>
+            </div>
+            <div class="hub-actions">
+                <a href="{% url 'pokemon:list' %}" class="hub-btn">View Pokémon</a>
             </div>
             {% endif %}
+
             <div>
-                <div class="container">
-                    {% for card in cards %}
-                    <div
-                        class="card"
-                        onclick="location.href='/pokemon/card/?id={{card.id}}'"
-                    >
-                        <img src="{{card.small_image}}" alt="Pokémon Card" />
+                {% if user.is_authenticated %}
+                    <h2 class="section-title">Your Collection</h2>
+                    <div class="container">
+                        {% if cards %}
+                            {% for card in cards %}
+                            <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}'">
+                                <img src="{{card.small_image}}" alt="Pokémon Card" />
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>You don't have any cards yet!</p>
+                        {% endif %}
                     </div>
-                    {% endfor %}
-                </div>
+                {% else %}
+                    <h2 class="section-title">Featured Pokémon Cards</h2>
+                    <div class="container">
+                        {% if cards %}
+                            {% for card in cards %}
+                            <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}'">
+                                <img src="{{card.small_image}}" alt="Pokémon Card" />
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No cards available at the moment.</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
             </div>
         </main>
     </body>
