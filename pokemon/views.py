@@ -19,8 +19,22 @@ OPENAPI_KEY = os.getenv("OPENAPI_KEY")
 
 # Create your views here.
 def list(request):
+    print(request.GET)
     query = request.GET.get("q") or ''
+    page = request.GET.get("page") or ''
     cards = Card.objects.all()
+    
+    print(query, page)
+    
+    if page == '':
+        return redirect(f'/pokemon/list?q={query}&page=1')
+    
+    try:
+        page = int(page)
+        if page < 1:
+            page = 1
+    except:
+        return redirect(f'/pokemon/list?q={query}&page=1')
 
     if query:
         filters = Q()
@@ -37,8 +51,14 @@ def list(request):
                 filters |= Q(id=int(query)) | Q(hp=int(query))
 
         cards = Card.objects.filter(filters).distinct()
+    
+    if 20 * (page - 1) > cards.count():
+        page -= 1
+    
+    cards = cards[20 * (page - 1) : 20 * page]
+    
 
-    context = {'cards': cards, 'query': query}
+    context = {'cards': cards, 'query': query, 'page': page}
     return render(request, 'pokemon/list.html', context)
 
 

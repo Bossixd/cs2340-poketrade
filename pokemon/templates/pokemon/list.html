@@ -1,85 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<br>
-    <form method="GET" action="">
-    <input type="text" name="q" placeholder="Search Pokémon by id, name, hp, or type..." value="{{ query }}" style="width: 400px; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-    <button type="submit" style="padding: 10px 15px; border-radius: 5px; border: none; background-color: #4CAF50; color: white; cursor: pointer;">Search</button>
-            <button type="button" class="return-btn" onclick="location.href='?q='" style="padding: 10px 15px; border-radius: 5px; border: none; background-color: #000000; color: white; cursor: pointer; ">Return</button>
-            <button type="button" class="display-all-btn" onclick="location.href='?q=$$$all'"
-            style="padding: 10px 15px; border-radius: 5px; border: none; background-color: #008CBA; color: white; cursor: pointer;">
-        Display All
-    </button>
-</form>
+    <head>
+        <br />
+        <div style="display: flex; gap: 12px">
+            <button
+                type="button"
+                style="
+                    padding: 10px 15px;
+                    border-radius: 5px;
+                    border: none;
+                    background-color: rgb(228, 70, 70);
+                    color: white;
+                    cursor: pointer;
+                "
+                onclick="location.href='?q={{ query }}&page={{ page|add:-1 }}'"
+            >
+                <
+            </button>
+            <form method="GET" action="">
+                <input
+                    type="text"
+                    name="q"
+                    placeholder="Search Pokémon by id, name, hp, or type..."
+                    value="{{ query }}"
+                    style="
+                        width: 400px;
+                        padding: 10px;
+                        border-radius: 5px;
+                        border: 1px solid #ccc;
+                    "
+                />
+                <button
+                    type="submit"
+                    style="
+                        padding: 10px 15px;
+                        border-radius: 5px;
+                        border: none;
+                        background-color: #4caf50;
+                        color: white;
+                        cursor: pointer;
+                    "
+                >
+                    Search
+                </button>
+                <button
+                    type="button"
+                    class="return-btn"
+                    onclick="location.href='?q='"
+                    style="
+                        padding: 10px 15px;
+                        border-radius: 5px;
+                        border: none;
+                        background-color: #000000;
+                        color: white;
+                        cursor: pointer;
+                    "
+                >
+                    Return
+                </button>
+                <button
+                    type="button"
+                    class="display-all-btn"
+                    onclick="location.href='?q=$$$all'"
+                    style="
+                        padding: 10px 15px;
+                        border-radius: 5px;
+                        border: none;
+                        background-color: #008cba;
+                        color: white;
+                        cursor: pointer;
+                    "
+                >
+                    Display All
+                </button>
+            </form>
+            <button
+                type="button"
+                style="
+                    padding: 10px 15px;
+                    border-radius: 5px;
+                    border: none;
+                    background-color: rgb(228, 70, 70);
+                    color: white;
+                    cursor: pointer;
+                "
+                onclick="location.href='?q={{ query }}&page={{ page|add:1 }}'"
+            >
+                >
+            </button>
+        </div>
 
-    <meta charset="UTF-8">
-    <title>{% block title %}Card Gallery{% endblock title %}</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f4f8;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+        <meta charset="UTF-8" />
+        <title>{% block title %}Card Gallery{% endblock title %}</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+                background-color: #f0f4f8;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
 
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 1200px;
-            margin: 20px auto;
-        }
+            .container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                max-width: 1200px;
+                margin: 20px auto;
+            }
 
-        .card {
-            background-color: #ffffff;
-            border-radius: 10px;
-            margin: 15px;
-            padding: 15px;
-            width: 200px;
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
+            .card {
+                background-color: #ffffff;
+                border-radius: 10px;
+                margin: 15px;
+                padding: 15px;
+                width: 200px;
+                text-align: center;
+                transition: transform 0.3s ease;
+            }
 
-        .card:hover {
-            transform: translateY(-10px);
-        }
+            .card:hover {
+                transform: translateY(-10px);
+            }
 
-        .card img {
-            max-width: 100%;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-
-    </style>
-</head>
-<body>
-
-<div class="container">
-    {% if query == "$$$all" %}
-        {% for card in cards %}
-            <div class="card">
-                <img src="{{card.small_image}}" alt="Pokémon Card">
+            .card img {
+                max-width: 100%;
+                border-radius: 5px;
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            {% if query == "$$$all" %} {% for card in cards %}
+            <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}'">
+                <img src="{{card.small_image}}" alt="Pokémon Card" />
             </div>
-        {% endfor %}
-    {% elif cards.count == 0 %}
-        <p>No Pokémon matched your search. Please search again.</p>
-    {% elif cards.count <= 10000 and query %}
-        {% for card in cards %}
-            <div class="card">
-                <img src="{{card.small_image}}" alt="Pokémon Card">
+            {% endfor %} {% elif cards.count == 0 %}
+            <p>No Pokémon matched your search. Please search again.</p>
+            {% elif cards.count <= 10000 and query %} {% for card in cards %}
+            <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}'">
+                <img src="{{card.small_image}}" alt="Pokémon Card" />
             </div>
-        {% endfor %}
-    {% elif query %}
-        <p>Too many Pokémon matched your search. Please refine your search.</p>
-    {% else %}
-        <p>Too many Pokémon are available. Please refine by searching or click display all above.</p>
-    {% endif %}
-</div>
-
-
-</body>
+            {% endfor %} {% elif query %}
+            <p>
+                Too many Pokémon matched your search. Please refine your search.
+            </p>
+            {% else %}
+            <p>
+                Too many Pokémon are available. Please refine by searching or
+                click display all above.
+            </p>
+            {% endif %}
+        </div>
+    </body>
 </html>
