@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     "accounts",
     "auths",
     "marketplace",
-    "trade"
+    "trade",
 ]
 
 

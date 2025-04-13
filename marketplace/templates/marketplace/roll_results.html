@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon Pack Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .results-header {
+            background: linear-gradient(135deg, #ff9966, #ff5e62);
+            color: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .currency-info {
+            background-color: #e9f7fe;
+            border-left: 4px solid #36b9cc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .pokemon-card {
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            padding: 0.5rem;
+        }
+
+        .pokemon-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .pokemon-card img {
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .pagination-container {
+            margin: 2rem 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination .page-item .page-link {
+            border-radius: 0.5rem;
+            margin: 0 0.2rem;
+            color: #555;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #ff5e62;
+            border-color: #ff5e62;
+        }
+
+        .action-buttons {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .btn-collection {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(79, 172, 254, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-collection:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-shop {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-shop:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(102, 126, 234, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <!-- Header -->
+        <div class="results-header">
+            <h1 class="mb-0 text-center"> {{ element_type|title }} Pack Summons Results </h1>
+        </div>
+
+        <!-- Currency Information -->
+        <div class="currency-info">
+            <div class="d-flex justify-content-between align-items-center">
+                <p class="mb-0"><strong>Spent:</strong> {% if roll_type == "ten" %}1600{% else %}160{% endif %} coins</p>
+                <p class="mb-0"><strong>Remaining Balance:</strong> {{ profile.currency }} coins</p>
+            </div>
+        </div>
+
+        <!-- Cards Section with Pagination -->
+        <div id="cardsContainer">
+            <!-- Cards will be dynamically loaded here by JavaScript -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <nav aria-label="Card navigation">
+                <ul class="pagination" id="pagination">
+                    <!-- Pagination will be dynamically created by JavaScript -->
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{% url 'pokehub:hub' %}" class="btn btn-collection">
+                View Collection
+            </a>
+
+            <a href="{% url 'marketplace:home' %}" class="btn btn-shop">
+                Back to Roll
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // All cards data from Django template
+        const allCards = [
+            {% for card in pulled_cards %}
+                {
+                    image: "{{ card.small_image }}",
+                    name: "{{ card.pokemon_info.name }}"
+                }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        // Configuration
+        const cardsPerPage = 5;
+        const totalPages = Math.ceil(allCards.length / cardsPerPage);
+        let currentPage = 1;
+
+        // Display cards for current page
+        function displayCards() {
+            const cardsContainer = document.getElementById('cardsContainer');
+            const startIndex = (currentPage - 1) * cardsPerPage;
+            const endIndex = Math.min(startIndex + cardsPerPage, allCards.length);
+            const currentCards = allCards.slice(startIndex, endIndex);
+
+            // Create row
+            let cardsHTML = '<div class="row">';
+
+            // Add cards to the row
+            currentCards.forEach(card => {
+                cardsHTML += `
+                    <div class="col">
+                        <div class="pokemon-card text-center">
+                            <img src="${card.image}" alt="${card.name}">
+                        </div>
+                    </div>
+                `;
+            });
+
+            cardsHTML += '</div>';
+            cardsContainer.innerHTML = cardsHTML;
+        }
+
+        // Create pagination
+        function createPagination() {
+            const pagination = document.getElementById('pagination');
+            let paginationHTML = '';
+
+            // Previous button
+            paginationHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            `;
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                paginationHTML += `
+                    <li class="page-item ${currentPage === i ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                    </li>
+                `;
+            }
+
+            // Next button
+            paginationHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            `;
+
+            pagination.innerHTML = paginationHTML;
+        }
+
+        // Change page
+        function changePage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            displayCards();
+            createPagination();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            displayCards();
+            createPagination();
+        });
+
+        // Make changePage function available globally
+        window.changePage = changePage;
+    </script>
+</body>
+</html>

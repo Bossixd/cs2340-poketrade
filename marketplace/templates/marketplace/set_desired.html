@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Desired Card</title>
+</head>
+<body>
+    <h1>Your Desired Card</h1>
+    {% if desired_card %}
+        <p>The card id you set is: <strong>{{ desired_card }}</strong></p>
+    {% else %}
+        <p>You have not set a desired card yet.</p>
+    {% endif %}
+    <!-- Optionally, include a link to go back to the homepage or another page -->
+    <p><a href="{% url 'marketplace:home' %}">Back to Home</a></p>
+</body>
+</html>
