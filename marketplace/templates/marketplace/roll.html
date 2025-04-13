@@ -1,134 +1,784 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        {% load static %}
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Card Gallery</title>
-        <style>
-            /* Header/Menu Bar Styles */
-            header {
-                background: #003057;
-                color: white;
-                padding: 15px 20px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Card Summons</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff5350;
+            --secondary: #3d7dca;
+            --success: #4caf50;
+            --info: #03a9f4;
+            --warning: #ffc107;
+            --danger: #f44336;
+            --light: #f8f9fa;
+            --dark: #343a40;
+
+            /* Type colors */
+            --fire: #fd7d24;
+            --water: #4592c4;
+            --grass: #9bcc50;
+            --electric: #eed535;
+            --psychic: #f366b9;
+            --fighting: #d56723;
+            --normal: #a4acaf;
+            --dark: #707070;
+            --fairy: #fdb9e9;
+            --dragon: #53a4cf;
+            --ghost: #7b62a3;
+            --bug: #729f3f;
+            --steel: #9eb7b8;
+            --ice: #51c4e7;
+            --rock: #a38c21;
+            --ground: #ab9842;
+            --poison: #b97fc9;
+            --flying: #bdb9b8;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding-bottom: 60px;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header-banner {
+            background: linear-gradient(45deg, var(--electric), var(--fire));
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-banner::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="white" stroke-width="4" fill="none" stroke-opacity="0.2"/><circle cx="50" cy="50" r="15" stroke="white" stroke-width="4" fill="none" stroke-opacity="0.2"/><line x1="50" y1="10" x2="50" y2="90" stroke="white" stroke-width="4" stroke-opacity="0.2"/></svg>');
+            background-repeat: repeat;
+            opacity: 0.1;
+        }
+
+        .page-title {
+            color: white;
+            font-size: 2.5rem;
+            margin: 0;
+            font-weight: 700;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Main content styling */
+        .main-content {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .profile-card {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--secondary), #5e60ce);
+            color: white;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::after {
+            content: "";
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            width: 100px;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="white" stroke-width="2" fill="none" stroke-opacity="0.3"/><circle cx="50" cy="50" r="20" stroke="white" stroke-width="2" fill="none" stroke-opacity="0.3"/><line x1="50" y1="10" x2="50" y2="90" stroke="white" stroke-width="2" stroke-opacity="0.3"/><line x1="10" y1="50" x2="90" y2="50" stroke="white" stroke-width="2" stroke-opacity="0.3"/></svg>');
+            background-repeat: no-repeat;
+            opacity: 0.3;
+        }
+
+        .profile-title {
+            font-size: 1.5rem;
+            margin: 0 0 10px 0;
+            font-weight: 600;
+        }
+
+        .profile-body {
+            padding: 20px;
+        }
+
+        .profile-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-name i {
+            margin-right: 10px;
+            color: var(--secondary);
+        }
+
+        .profile-stat {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(61, 125, 202, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--secondary);
+        }
+
+        .stat-info {
+            flex-grow: 1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #777;
+            margin-bottom: 3px;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .desired-card {
+            background: rgba(61, 125, 202, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .desired-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .desired-card-icon {
+            color: var(--warning);
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .desired-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .pity-progress {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .pity-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--warning), var(--danger));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .change-card-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            text-decoration: none;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .change-card-btn:hover {
+            background: #2c5c94;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        /* Element packs card */
+        .element-packs-card {
+            flex: 1.5;
+            min-width: 350px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .element-packs-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .element-header {
+            background: linear-gradient(135deg, var(--success), var(--info));
+            color: white;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .element-header::after {
+            content: "";
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            width: 100px;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50,10 L90,50 L50,90 L10,50 Z" stroke="white" stroke-width="2" fill="none" stroke-opacity="0.3"/></svg>');
+            background-repeat: no-repeat;
+            opacity: 0.3;
+        }
+
+        .element-title {
+            font-size: 1.5rem;
+            margin: 0 0 10px 0;
+            font-weight: 600;
+        }
+
+        .element-body {
+            padding: 20px;
+        }
+
+        .element-intro {
+            margin-bottom: 20px;
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .element-form {
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .element-select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+        .element-select:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(61, 125, 202, 0.2);
+        }
+
+        .element-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .element-type {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .element-type:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .element-fire { background-color: var(--fire); color: white; }
+        .element-water { background-color: var(--water); color: white; }
+        .element-grass { background-color: var(--grass); color: white; }
+        .element-electric { background-color: var(--electric); color: #333; }
+        .element-psychic { background-color: var(--psychic); color: white; }
+
+        .roll-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .roll-btn {
+            flex: 1;
+            min-width: 140px;
+            padding: 12px 20px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .roll-btn i {
+            margin-right: 8px;
+        }
+
+        .single-roll {
+            background: linear-gradient(45deg, var(--primary), #ff7875);
+            color: white;
+            box-shadow: 0 4px 10px rgba(255, 83, 80, 0.3);
+        }
+
+        .multi-roll {
+            background: linear-gradient(45deg, var(--warning), #ffb74d);
+            color: #333;
+            box-shadow: 0 4px 10px rgba(255, 193, 7, 0.3);
+        }
+
+        .roll-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .single-roll:hover {
+            background: linear-gradient(45deg, #ff3d3a, #ff6b68);
+        }
+
+        .multi-roll:hover {
+            background: linear-gradient(45deg, #ffba00, #ffa726);
+        }
+
+        .roll-price {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 3px;
+        }
+
+        .roll-price i {
+            margin-right: 5px;
+            font-size: 0.8rem;
+        }
+
+        .login-alert {
+            background: linear-gradient(45deg, var(--warning), #ffcc80);
+            color: #333;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 600px;
+            margin: 100px auto;
+        }
+
+        .login-icon {
+            font-size: 3rem;
+            color: white;
+            background: rgba(0, 0, 0, 0.1);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .login-message {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .login-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: white;
+            color: var(--warning);
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+
+        /* Floating animation */
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        /* Messages styling */
+        .messages {
+            margin-bottom: 30px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .alert-icon {
+            margin-right: 15px;
+            font-size: 1.3rem;
+        }
+
+        .alert-success {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-info {
+            background-color: rgba(3, 169, 244, 0.1);
+            color: var(--info);
+            border-left: 4px solid var(--info);
+        }
+
+        .alert-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+
+        .alert-danger {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        /* Responsive styling */
+        @media (max-width: 768px) {
+            .header-banner {
+                padding: 20px;
             }
-            header .logo h2 {
-                margin: 0;
+
+            .page-title {
+                font-size: 2rem;
             }
-            header .logo a {
-                color: inherit;
-                text-decoration: none;
+
+            .main-content {
+                flex-direction: column;
             }
-            .auth-controls {
-                display: flex;
-                align-items: center;
-                gap: 10px;
+
+            .profile-card, .element-packs-card {
+                width: 100%;
             }
-            .auth-btn {
-                padding: 8px 16px;
-                background: #007bff;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                text-decoration: none;
-                font-size: 14px;
+
+            .roll-buttons {
+                flex-direction: column;
             }
-            .auth-btn:hover {
-                background: #0056b3;
+
+            .roll-btn {
+                width: 100%;
             }
-            .currency-display {
-                font-weight: bold;
-                color: #ffd700;
-                margin-right: 15px;
+        }
+
+        /* Card animation on hover */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(61, 125, 202, 0.4);
             }
-            /* Navigation/Search Bar Styles */
-            .search-nav {
-                display: flex;
-                gap: 12px;
-                align-items: center;
-                justify-content: center;
-                margin: 20px 0;
+            70% {
+                box-shadow: 0 0 0 10px rgba(61, 125, 202, 0);
             }
-            .search-nav button,
-            .search-nav input {
-                padding: 10px 15px;
-                border-radius: 5px;
-                border: none;
-                cursor: pointer;
+            100% {
+                box-shadow: 0 0 0 0 rgba(61, 125, 202, 0);
             }
-            .search-nav input {
-                width: 400px;
-                border: 1px solid #ccc;
-            }
-            .search-nav .prev-btn,
-            .search-nav .next-btn {
-                background-color: rgb(228, 70, 70);
-                color: white;
-            }
-            .search-nav .search-btn {
-                background-color: #4caf50;
-                color: white;
-            }
-            .search-nav .return-btn {
-                background-color: #000000;
-                color: white;
-            }
-            .search-nav .display-all-btn {
-                background-color: #008cba;
-                color: white;
-            }
-            /* Overall Body & Container Styles */
-            body {
-                margin: 0;
-                padding: 0;
-                font-family: Arial, sans-serif;
-                background-color: #f0f4f8;
-            }
-            .container {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                max-width: 1200px;
-                margin: 20px auto;
-            }
-            .card {
-                background-color: #ffffff;
-                border-radius: 10px;
-                margin: 15px;
-                padding: 15px;
-                width: 200px;
-                text-align: center;
-                transition: transform 0.3s ease;
-            }
-            .card:hover {
-                transform: translateY(-10px);
-            }
-            .card img {
-                max-width: 100%;
-                border-radius: 5px;
-                margin-top: 10px;
-            }
-        </style>
-    </head>
-    <body>
-        <!-- Menu Bar -->
-        <header>
-            <div class="logo">
-                <h2><a href="/pokehub/hub">PokéHub</a></h2>
+        }
+
+        /* Add sparkle effects */
+        .sparkle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            z-index: 2;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-banner animate__animated animate__fadeIn">
+            <h1 class="page-title animate__animated animate__fadeInDown">Pokémon Card Summons</h1>
+        </div>
+
+        {% if messages %}
+            <div class="messages animate__animated animate__fadeIn">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <div class="alert-icon">
+                            {% if message.tags == 'success' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% elif message.tags == 'info' %}
+                                <i class="fas fa-info-circle"></i>
+                            {% elif message.tags == 'warning' %}
+                                <i class="fas fa-exclamation-triangle"></i>
+                            {% elif message.tags == 'danger' %}
+                                <i class="fas fa-times-circle"></i>
+                            {% else %}
+                                <i class="fas fa-bell"></i>
+                            {% endif %}
+                        </div>
+                        {{ message }}
+                    </div>
+                {% endfor %}
             </div>
-            <!-- Using a flex container for the button group -->
-            <div class="auth-controls" style="display: flex; gap: 10px; align-items: center;">
-                <a href="{% url 'pokehub:hub' %}" class="auth-btn">Home</a>
-                <a href="{% url 'marketplace:home' %}" class="auth-btn">Marketplace Home</a>
-                <form action="{% url 'auths:logout' %}" method="post" style="margin: 0;">
-                    {% csrf_token %}
-                    <button type="submit" class="auth-btn">Logout</button>
-                </form>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+            <div class="main-content">
+                <div class="profile-card animate__animated animate__fadeInLeft">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Your Trainer Profile</h2>
+                    </div>
+                    <div class="profile-body">
+                        <div class="profile-name">
+                            <i class="fas fa-user-circle"></i>
+                            {{ user.username }}
+                        </div>
+
+                        <div class="profile-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label">Coins Balance</div>
+                                <div class="stat-value">{{ profile.currency }}</div>
+                            </div>
+                        </div>
+
+                        <div class="desired-card">
+                            <div class="desired-card-header">
+                                <div class="desired-card-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="desired-card-title">Desired Card</div>
+                            </div>
+
+                            {% if desired_card.card %}
+                                <div class="stat-value">{{ desired_card.card.pokemon_info.name }}</div>
+                                <div class="stat-label">Pity Counter: {{ desired_card.pity_counter }}/90</div>
+
+                                <div class="pity-progress">
+                                    <div class="pity-bar" style="width: {{ desired_card.pity_counter|floatformat:0 }}%;"></div>
+                                </div>
+
+                                <a href="{% url 'pokemon:list' %}" class="change-card-btn">
+                                    <i class="fas fa-exchange-alt"></i> Change Card
+                                </a>
+                            {% else %}
+                                <div class="stat-label">No desired card set</div>
+                                <a href="{% url 'pokemon:list' %}" class="change-card-btn">
+                                    <i class="fas fa-plus"></i> Set Desired Card
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="element-packs-card animate__animated animate__fadeInRight">
+                    <div class="element-header">
+                        <h2 class="element-title">Element Type Packs</h2>
+                    </div>
+                    <div class="element-body">
+                        <p class="element-intro">Choose an element type pack to summon rare and powerful Pokémon cards!</p>
+
+                        <form method="post" action="{% url 'marketplace:roll' %}" class="element-form">
+                            {% csrf_token %}
+
+                            <div class="form-group">
+                                <label for="element_type" class="form-label">Element Type:</label>
+                                <select name="element_type" id="element_type" class="element-select" required>
+                                    {% for type in element_types %}
+                                        <option value="{{ type }}">{{ type|title }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <div class="element-options">
+                                    <span class="element-type element-fire">Fire</span>
+                                    <span class="element-type element-water">Water</span>
+                                    <span class="element-type element-grass">Grass</span>
+                                    <span class="element-type element-electric">Electric</span>
+                                    <span class="element-type element-psychic">Psychic</span>
+                                </div>
+                            </div>
+
+                            <div class="roll-buttons">
+                                <button type="submit" name="roll_type" value="single" class="roll-btn single-roll">
+                                    <i class="fas fa-dice"></i> Roll Once
+                                    <div class="roll-price">
+                                        <i class="fas fa-coins"></i> 160 coins
+                                    </div>
+                                </button>
+
+                                <button type="submit" name="roll_type" value="ten" class="roll-btn multi-roll pulse">
+                                    <i class="fas fa-dice-d20"></i> Roll 10x
+                                    <div class="roll-price">
+                                        <i class="fas fa-coins"></i> 1600 coins
+                                    </div>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </header>
-    </body>
-</html>
+        {% else %}
+            <div class="login-alert animate__animated animate__fadeIn">
+                <div class="login-icon floating">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="login-message">Please log in to summon Pokémon cards</div>
+                <a href="{% url 'auths:login' %}" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login Now
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Element type selector
+            const elementSelect = document.getElementById('element_type');
+            const elementTypes = document.querySelectorAll('.element-type');
+
+            elementTypes.forEach(type => {
+                type.addEventListener('click', function() {
+                    const typeName = this.textContent.toLowerCase();
+                    elementSelect.value = typeName;
+
+                    // Add active class
+                    elementTypes.forEach(el => el.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Add sparkle effect
+                    createSparkle(this);
+                });
+            });
+
+            // Create sparkle animation
+            function createSparkle(element) {
+                for (let i = 0; i < 5; i++) {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.width = Math.random() * 8 + 2 + 'px';
+                    sparkle.style.height = sparkle.style.width;
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+
+                    element.appendChild(sparkle);
+
+                    // Animate sparkle
+                    setTimeout(() => {
+                        sparkle.style.opacity = 1;
+                        setTimeout(() => {
+                            sparkle.style.opacity = 0;
+                            setTimeout(() => {
+                                sparkle.remove();
+                            }, 300);
+                        }, 300);
+                    }, i * 100);
+                }
+            }
+
+            // Add hover effect to cards
+            const cards = document.querySelectorAll('.profile-card, .element-packs-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.classList.add('shadow-pulse');
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.classList.remove('shadow-pulse');
+                });
+            });
+        });
+    </script>
+</body>

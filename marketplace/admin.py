@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import ElementType, DesiredCard
 
-# Register your models here.
+admin.site.register(ElementType)
+admin.site.register(DesiredCard)

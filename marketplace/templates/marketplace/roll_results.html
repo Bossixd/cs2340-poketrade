@@ -16,7 +16,7 @@
             --danger: #f44336;
             --light: #f8f9fa;
             --dark: #343a40;
-
+            
             /* Type colors */
             --fire: #fd7d24;
             --water: #4592c4;
@@ -37,7 +37,7 @@
             --poison: #b97fc9;
             --flying: #bdb9b8;
         }
-
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -46,13 +46,13 @@
             margin: 0;
             overflow-x: hidden;
         }
-
+        
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
-
+        
         .header-banner {
             background: linear-gradient(45deg, var(--electric), var(--fire));
             border-radius: 15px;
@@ -63,7 +63,7 @@
             position: relative;
             overflow: hidden;
         }
-
+        
         .header-banner::before {
             content: "";
             position: absolute;
@@ -75,7 +75,7 @@
             background-repeat: repeat;
             opacity: 0.1;
         }
-
+        
         .page-title {
             color: white;
             font-size: 2.5rem;
@@ -83,7 +83,7 @@
             font-weight: 700;
             text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
         }
-
+        
         /* Main content styling */
         .main-content {
             display: flex;
@@ -91,7 +91,7 @@
             margin-bottom: 40px;
             flex-wrap: wrap;
         }
-
+        
         .profile-card {
             flex: 1;
             min-width: 300px;
@@ -101,11 +101,11 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             transition: transform 0.3s ease;
         }
-
+        
         .profile-card:hover {
             transform: translateY(-5px);
         }
-
+        
         .profile-header {
             background: linear-gradient(135deg, var(--secondary), #5e60ce);
             color: white;
@@ -113,7 +113,7 @@
             position: relative;
             overflow: hidden;
         }
-
+        
         .profile-header::after {
             content: "";
             position: absolute;
@@ -125,17 +125,17 @@
             background-repeat: no-repeat;
             opacity: 0.3;
         }
-
+        
         .profile-title {
             font-size: 1.5rem;
             margin: 0 0 10px 0;
             font-weight: 600;
         }
-
+        
         .profile-body {
             padding: 20px;
         }
-
+        
         .profile-name {
             font-size: 1.3rem;
             font-weight: 700;
@@ -144,18 +144,18 @@
             display: flex;
             align-items: center;
         }
-
+        
         .profile-name i {
             margin-right: 10px;
             color: var(--secondary);
         }
-
+        
         .profile-stat {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
         }
-
+        
         .stat-icon {
             width: 36px;
             height: 36px;
@@ -167,48 +167,48 @@
             margin-right: 15px;
             color: var(--secondary);
         }
-
+        
         .stat-info {
             flex-grow: 1;
         }
-
+        
         .stat-label {
             font-size: 0.85rem;
             color: #777;
             margin-bottom: 3px;
         }
-
+        
         .stat-value {
             font-size: 1.1rem;
             font-weight: 600;
             color: #333;
         }
-
+        
         .desired-card {
             background: rgba(61, 125, 202, 0.05);
             border-radius: 10px;
             padding: 15px;
             margin-top: 20px;
         }
-
+        
         .desired-card-header {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
         }
-
+        
         .desired-card-icon {
             color: var(--warning);
             margin-right: 10px;
             font-size: 1.2rem;
         }
-
+        
         .desired-card-title {
             font-size: 1rem;
             font-weight: 600;
             color: #333;
         }
-
+        
         .pity-progress {
             background: #e9ecef;
             height: 8px;
@@ -216,14 +216,14 @@
             margin-top: 15px;
             overflow: hidden;
         }
-
+        
         .pity-bar {
             height: 100%;
             background: linear-gradient(90deg, var(--warning), var(--danger));
             border-radius: 4px;
             transition: width 0.3s ease;
         }
-
+        
         .change-card-btn {
             display: inline-block;
             padding: 8px 16px;
@@ -237,13 +237,13 @@
             border: none;
             cursor: pointer;
         }
-
+        
         .change-card-btn:hover {
             background: #2c5c94;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-
+        
         /* Element packs card */
         .element-packs-card {
             flex: 1.5;
@@ -254,11 +254,11 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             transition: transform 0.3s ease;
         }
-
+        
         .element-packs-card:hover {
             transform: translateY(-5px);
         }
-
+        
         .element-header {
             background: linear-gradient(135deg, var(--success), var(--info));
             color: white;
@@ -266,7 +266,7 @@
             position: relative;
             overflow: hidden;
         }
-
+        
         .element-header::after {
             content: "";
             position: absolute;
@@ -278,40 +278,40 @@
             background-repeat: no-repeat;
             opacity: 0.3;
         }
-
+        
         .element-title {
             font-size: 1.5rem;
             margin: 0 0 10px 0;
             font-weight: 600;
         }
-
+        
         .element-body {
             padding: 20px;
         }
-
+        
         .element-intro {
             margin-bottom: 20px;
             font-size: 1rem;
             color: #555;
         }
-
+        
         .element-form {
             background: rgba(0, 0, 0, 0.02);
             border-radius: 10px;
             padding: 20px;
         }
-
+        
         .form-group {
             margin-bottom: 20px;
         }
-
+        
         .form-label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
             color: #333;
         }
-
+        
         .element-select {
             width: 100%;
             padding: 12px;
@@ -326,20 +326,20 @@
             background-position: right 12px center;
             background-size: 16px;
         }
-
+        
         .element-select:focus {
             outline: none;
             border-color: var(--secondary);
             box-shadow: 0 0 0 3px rgba(61, 125, 202, 0.2);
         }
-
+        
         .element-options {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-top: 10px;
         }
-
+        
         .element-type {
             padding: 8px 12px;
             border-radius: 20px;
@@ -347,25 +347,25 @@
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-
+        
         .element-type:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-
+        
         .element-fire { background-color: var(--fire); color: white; }
         .element-water { background-color: var(--water); color: white; }
         .element-grass { background-color: var(--grass); color: white; }
         .element-electric { background-color: var(--electric); color: #333; }
         .element-psychic { background-color: var(--psychic); color: white; }
-
+        
         .roll-buttons {
             display: flex;
             gap: 15px;
             margin-top: 25px;
             flex-wrap: wrap;
         }
-
+        
         .roll-btn {
             flex: 1;
             min-width: 140px;
@@ -380,36 +380,36 @@
             justify-content: center;
             transition: all 0.3s ease;
         }
-
+        
         .roll-btn i {
             margin-right: 8px;
         }
-
+        
         .single-roll {
             background: linear-gradient(45deg, var(--primary), #ff7875);
             color: white;
             box-shadow: 0 4px 10px rgba(255, 83, 80, 0.3);
         }
-
+        
         .multi-roll {
             background: linear-gradient(45deg, var(--warning), #ffb74d);
             color: #333;
             box-shadow: 0 4px 10px rgba(255, 193, 7, 0.3);
         }
-
+        
         .roll-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
         }
-
+        
         .single-roll:hover {
             background: linear-gradient(45deg, #ff3d3a, #ff6b68);
         }
-
+        
         .multi-roll:hover {
             background: linear-gradient(45deg, #ffba00, #ffa726);
         }
-
+        
         .roll-price {
             display: flex;
             align-items: center;
@@ -417,12 +417,12 @@
             opacity: 0.9;
             margin-top: 3px;
         }
-
+        
         .roll-price i {
             margin-right: 5px;
             font-size: 0.8rem;
         }
-
+        
         .login-alert {
             background: linear-gradient(45deg, var(--warning), #ffcc80);
             color: #333;
@@ -436,7 +436,7 @@
             max-width: 600px;
             margin: 100px auto;
         }
-
+        
         .login-icon {
             font-size: 3rem;
             color: white;
@@ -449,13 +449,13 @@
             justify-content: center;
             margin-bottom: 20px;
         }
-
+        
         .login-message {
             font-size: 1.2rem;
             margin-bottom: 25px;
             color: #333;
         }
-
+        
         .login-btn {
             display: inline-block;
             padding: 12px 30px;
@@ -468,28 +468,28 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-
+        
         .login-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 15px rgba(0,0,0,0.15);
         }
-
+        
         /* Floating animation */
         @keyframes floating {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
             100% { transform: translateY(0px); }
         }
-
+        
         .floating {
             animation: floating 3s ease-in-out infinite;
         }
-
+        
         /* Messages styling */
         .messages {
             margin-bottom: 30px;
         }
-
+        
         .alert {
             padding: 15px 20px;
             border-radius: 10px;
@@ -499,68 +499,68 @@
             align-items: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
-
+        
         .alert-icon {
             margin-right: 15px;
             font-size: 1.3rem;
         }
-
+        
         .alert-success {
             background-color: rgba(76, 175, 80, 0.1);
             color: var(--success);
             border-left: 4px solid var(--success);
         }
-
+        
         .alert-info {
             background-color: rgba(3, 169, 244, 0.1);
             color: var(--info);
             border-left: 4px solid var(--info);
         }
-
+        
         .alert-warning {
             background-color: rgba(255, 193, 7, 0.1);
             color: var(--warning);
             border-left: 4px solid var(--warning);
         }
-
+        
         .alert-danger {
             background-color: rgba(244, 67, 54, 0.1);
             color: var(--danger);
             border-left: 4px solid var(--danger);
         }
-
+        
         /* Responsive styling */
         @media (max-width: 768px) {
             .header-banner {
                 padding: 20px;
             }
-
+            
             .page-title {
                 font-size: 2rem;
             }
-
+            
             .main-content {
                 flex-direction: column;
             }
-
+            
             .profile-card, .element-packs-card {
                 width: 100%;
             }
-
+            
             .roll-buttons {
                 flex-direction: column;
             }
-
+            
             .roll-btn {
                 width: 100%;
             }
         }
-
+        
         /* Card animation on hover */
         .pulse {
             animation: pulse 2s infinite;
         }
-
+        
         @keyframes pulse {
             0% {
                 box-shadow: 0 0 0 0 rgba(61, 125, 202, 0.4);
@@ -572,7 +572,7 @@
                 box-shadow: 0 0 0 0 rgba(61, 125, 202, 0);
             }
         }
-
+        
         /* Add sparkle effects */
         .sparkle {
             position: absolute;
@@ -589,7 +589,7 @@
         <div class="header-banner animate__animated animate__fadeIn">
             <h1 class="page-title animate__animated animate__fadeInDown">Pokémon Card Summons</h1>
         </div>
-
+        
         {% if messages %}
             <div class="messages animate__animated animate__fadeIn">
                 {% for message in messages %}
@@ -612,7 +612,7 @@
                 {% endfor %}
             </div>
         {% endif %}
-
+        
         {% if user.is_authenticated %}
             <div class="main-content">
                 <div class="profile-card animate__animated animate__fadeInLeft">
@@ -624,7 +624,7 @@
                             <i class="fas fa-user-circle"></i>
                             {{ user.username }}
                         </div>
-
+                        
                         <div class="profile-stat">
                             <div class="stat-icon">
                                 <i class="fas fa-coins"></i>
@@ -634,7 +634,7 @@
                                 <div class="stat-value">{{ profile.currency }}</div>
                             </div>
                         </div>
-
+                        
                         <div class="desired-card">
                             <div class="desired-card-header">
                                 <div class="desired-card-icon">
@@ -642,15 +642,15 @@
                                 </div>
                                 <div class="desired-card-title">Desired Card</div>
                             </div>
-
+                            
                             {% if desired_card.card %}
                                 <div class="stat-value">{{ desired_card.card.pokemon_info.name }}</div>
                                 <div class="stat-label">Pity Counter: {{ desired_card.pity_counter }}/90</div>
-
+                                
                                 <div class="pity-progress">
                                     <div class="pity-bar" style="width: {{ desired_card.pity_counter|floatformat:0 }}%;"></div>
                                 </div>
-
+                                
                                 <a href="{% url 'pokemon:list' %}" class="change-card-btn">
                                     <i class="fas fa-exchange-alt"></i> Change Card
                                 </a>
@@ -663,17 +663,17 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <div class="element-packs-card animate__animated animate__fadeInRight">
                     <div class="element-header">
                         <h2 class="element-title">Element Type Packs</h2>
                     </div>
                     <div class="element-body">
                         <p class="element-intro">Choose an element type pack to summon rare and powerful Pokémon cards!</p>
-
+                        
                         <form method="post" action="{% url 'marketplace:roll' %}" class="element-form">
                             {% csrf_token %}
-
+                            
                             <div class="form-group">
                                 <label for="element_type" class="form-label">Element Type:</label>
                                 <select name="element_type" id="element_type" class="element-select" required>
@@ -681,7 +681,7 @@
                                         <option value="{{ type }}">{{ type|title }}</option>
                                     {% endfor %}
                                 </select>
-
+                                
                                 <div class="element-options">
                                     <span class="element-type element-fire">Fire</span>
                                     <span class="element-type element-water">Water</span>
@@ -690,7 +690,7 @@
                                     <span class="element-type element-psychic">Psychic</span>
                                 </div>
                             </div>
-
+                            
                             <div class="roll-buttons">
                                 <button type="submit" name="roll_type" value="single" class="roll-btn single-roll">
                                     <i class="fas fa-dice"></i> Roll Once
@@ -698,7 +698,7 @@
                                         <i class="fas fa-coins"></i> 160 coins
                                     </div>
                                 </button>
-
+                                
                                 <button type="submit" name="roll_type" value="ten" class="roll-btn multi-roll pulse">
                                     <i class="fas fa-dice-d20"></i> Roll 10x
                                     <div class="roll-price">
@@ -728,21 +728,21 @@
             // Element type selector
             const elementSelect = document.getElementById('element_type');
             const elementTypes = document.querySelectorAll('.element-type');
-
+            
             elementTypes.forEach(type => {
                 type.addEventListener('click', function() {
                     const typeName = this.textContent.toLowerCase();
                     elementSelect.value = typeName;
-
+                    
                     // Add active class
                     elementTypes.forEach(el => el.classList.remove('active'));
                     this.classList.add('active');
-
+                    
                     // Add sparkle effect
                     createSparkle(this);
                 });
             });
-
+            
             // Create sparkle animation
             function createSparkle(element) {
                 for (let i = 0; i < 5; i++) {
@@ -752,9 +752,9 @@
                     sparkle.style.height = sparkle.style.width;
                     sparkle.style.left = Math.random() * 100 + '%';
                     sparkle.style.top = Math.random() * 100 + '%';
-
+                    
                     element.appendChild(sparkle);
-
+                    
                     // Animate sparkle
                     setTimeout(() => {
                         sparkle.style.opacity = 1;
@@ -767,14 +767,14 @@
                     }, i * 100);
                 }
             }
-
+            
             // Add hover effect to cards
             const cards = document.querySelectorAll('.profile-card, .element-packs-card');
             cards.forEach(card => {
                 card.addEventListener('mouseenter', function() {
                     this.classList.add('shadow-pulse');
                 });
-
+                
                 card.addEventListener('mouseleave', function() {
                     this.classList.remove('shadow-pulse');
                 });

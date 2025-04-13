@@ -156,11 +156,11 @@
             {% endif %}
         </div>
         <div class="card-details">
-            <form action="{% url 'marketplace:set_desired' %}" method="post" style="margin: 0;">
-                {% csrf_token %}
-                <input type="hidden" name="desired_card" value="{{ id }}">
-                <button type="submit" class="select-btn">Select as Desired Card</button>
-            </form>
+                <form method="post" action="{% url 'marketplace:set_desired' %}">
+        {% csrf_token %}
+        <input type="hidden" name="card_id" value="{{ id }}">
+        <button type="submit" class="btn btn-warning">Set as Desired Card</button>
+    </form>
         </div>
     </div>
 
