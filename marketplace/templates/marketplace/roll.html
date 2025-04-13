@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load marketplace_filters %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokémon Card Summons</title>
@@ -24,7 +25,7 @@
             --electric: #eed535;
             --psychic: #f366b9;
             --fighting: #d56723;
-            --normal: #a4acaf;
+            --colorless: #a4acaf;
             --dark: #707070;
             --fairy: #fdb9e9;
             --dragon: #53a4cf;
@@ -358,6 +359,12 @@
         .element-grass { background-color: var(--grass); color: white; }
         .element-electric { background-color: var(--electric); color: #333; }
         .element-psychic { background-color: var(--psychic); color: white; }
+        .element-fighting { background-color: var(--fighting); color: white; }
+        .element-dark { background-color: var(--dark); color: white; }
+        .element-steel { background-color: var(--steel); color: #333; }
+        .element-fairy { background-color: var(--fairy); color: #333; }
+        .element-dragon { background-color: var(--dragon); color: white; }
+        .element-colorless { background-color: var(--colorless); color: #333; }
 
         .roll-buttons {
             display: flex;
@@ -645,11 +652,11 @@
 
                             {% if desired_card.card %}
                                 <div class="stat-value">{{ desired_card.card.pokemon_info.name }}</div>
-                                <div class="stat-label">Pity Counter: {{ desired_card.pity_counter }}/90</div>
+                                <div class="stat-label">Pity Counter: {{ desired_card.pity_counter }}</div>
 
-                                <div class="pity-progress">
-                                    <div class="pity-bar" style="width: {{ desired_card.pity_counter|floatformat:0 }}%;"></div>
-                                </div>
+                                <div style="width:480px; background: #e9ecef; border-radius:4px; overflow:hidden; margin-top:10px;">
+  <div class="pity-bar" style="width: {{ desired_card.pity_counter|mul:"0.2"|floatformat:0 }}%; height:8px; background: linear-gradient(90deg, var(--warning), var(--danger));"></div>
+</div>
 
                                 <a href="{% url 'pokemon:list' %}" class="change-card-btn">
                                     <i class="fas fa-exchange-alt"></i> Change Card
@@ -671,7 +678,7 @@
                     <div class="element-body">
                         <p class="element-intro">Choose an element type pack to summon rare and powerful Pokémon cards!</p>
 
-                        <form method="post" action="{% url 'marketplace:roll' %}" class="element-form">
+                        <form method="post" action="{% url 'marketplace:roll' %}" class="element-form" id="rollForm">
                             {% csrf_token %}
 
                             <div class="form-group">
@@ -688,23 +695,32 @@
                                     <span class="element-type element-grass">Grass</span>
                                     <span class="element-type element-electric">Electric</span>
                                     <span class="element-type element-psychic">Psychic</span>
+                                          <span class="element-type element-fighting">Fighting</span>
+                                          <span class="element-type element-dark">Dark</span>
+                                          <span class="element-type element-steel">Steel</span>
+                                          <span class="element-type element-fairy">Fairy</span>
+                                          <span class="element-type element-dragon">Dragon</span>
+                                          <span class="element-type element-colorless">Colorless</span>
                                 </div>
                             </div>
 
                             <div class="roll-buttons">
-                                <button type="submit" name="roll_type" value="single" class="roll-btn single-roll">
-                                    <i class="fas fa-dice"></i> Roll Once
+                                <button type="button" id="singleRollBtn" class="roll-btn single-roll">
+                                    <i class="fas fa-dice"></i> Summon Once
                                     <div class="roll-price">
                                         <i class="fas fa-coins"></i> 160 coins
                                     </div>
                                 </button>
 
-                                <button type="submit" name="roll_type" value="ten" class="roll-btn multi-roll pulse">
-                                    <i class="fas fa-dice-d20"></i> Roll 10x
+                                <button type="button" id="multiRollBtn" class="roll-btn multi-roll pulse">
+                                    <i class="fas fa-dice-d20"></i> Summon 10x
                                     <div class="roll-price">
                                         <i class="fas fa-coins"></i> 1600 coins
                                     </div>
                                 </button>
+
+                                <!-- Hidden input for roll type -->
+                                <input type="hidden" name="roll_type" id="rollType" value="">
                             </div>
                         </form>
                     </div>
@@ -728,7 +744,29 @@
             // Element type selector
             const elementSelect = document.getElementById('element_type');
             const elementTypes = document.querySelectorAll('.element-type');
+            const rollForm = document.getElementById('rollForm');
+            const rollTypeInput = document.getElementById('rollType');
+            const singleRollBtn = document.getElementById('singleRollBtn');
+            const multiRollBtn = document.getElementById('multiRollBtn');
 
+            // Set up roll button event listeners
+            if (singleRollBtn) {
+                singleRollBtn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    rollTypeInput.value = 'single';
+                    rollForm.submit();
+                });
+            }
+
+            if (multiRollBtn) {
+                multiRollBtn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    rollTypeInput.value = 'ten';
+                    rollForm.submit();
+                });
+            }
+
+            // Element type selection
             elementTypes.forEach(type => {
                 type.addEventListener('click', function() {
                     const typeName = this.textContent.toLowerCase();
@@ -782,3 +820,4 @@
         });
     </script>
 </body>
+</html>

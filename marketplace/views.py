@@ -29,7 +29,7 @@ def home(request):
         'desired_card': desired_card,
         'profile': profile
     }
-    return render(request, 'marketplace/home.html', context)
+    return render(request, 'marketplace/roll.html', context)
 
 
 @login_required
