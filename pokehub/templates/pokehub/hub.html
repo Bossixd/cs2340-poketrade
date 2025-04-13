@@ -1,103 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PokéHub</title>
-  {% load static %}
-  <style>
-    /* Header styles */
-    header {
-      background: #003057;
-      color: white;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    /* Currency display */
-    .currency-display {
-      display: flex;
-      align-items: center;
-      background: rgba(255, 215, 0, 0.2);
-      padding: 6px 12px;
-      border-radius: 20px;
-      margin-right: 15px;
-      border: 1px solid rgba(255, 215, 0, 0.3);
-    }
-    
-    .currency-icon {
-      width: 20px;
-      height: 20px;
-      margin-right: 8px;
-      background-image: url('{% static "pokehub/images/coin.png" %}');
-      background-size: contain;
-    }
-    
-    .currency-amount {
-      font-weight: bold;
-      color: #FFD700;
-    }
-    
-    /* Auth controls */
-    .auth-controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .auth-btn {
-      padding: 8px 16px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      text-decoration: none;
-      font-size: 14px;
-    }
-    
-    .auth-btn:hover {
-      background: #0056b3;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <!-- Logo or site name -->
-    <div class="logo">
-      <h2>PokéHub</h2>
-    </div>
-    
-    <!-- Auth and currency controls -->
-    <div class="auth-controls">
-      {% if user.is_authenticated %}
-        <div class="currency-display" title="Your PokéCoins">
-          <div class="currency-icon"></div>
-          <span class="currency-amount">{{ profile.currency }}</span>
-        </div>
-        <form action="{% url 'auths:logout' %}" method="post">
-          {% csrf_token %}
-          <button type="submit" class="auth-btn">Logout</button>
-        </form>
-      {% else %}
-        <a href="{% url 'auths:login' %}" class="auth-btn">Login</a>
-        <a href="{% url 'auths:register' %}" class="auth-btn">Register</a>
-      {% endif %}
-    </div>
-  </header>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>PokéHub</title>
+        {% load static %}
+        <style>
+            /* Header styles */
+            header {
+                background: #003057;
+                color: white;
+                padding: 15px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
 
-  <main>
-    <h1>Welcome{% if user.is_authenticated %}, {{ user.username }}{% endif %}!</h1>
-    <p>Your central hub for all Pokémon activities.</p>
-    
-    {% if user.is_authenticated %}
-    <div class="hub-actions">
-      <a href="{% url 'pokemon:list' %}" class="hub-btn">View Pokémon</a>
-      <a href="{% url 'accounts:profile' %}">My Profile</a>
-    </div>
-    {% endif %}
-  </main>
-</body>
+            .container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                max-width: 1200px;
+                margin: 20px auto;
+            }
+
+            .card {
+                background-color: #ffffff;
+                border-radius: 10px;
+                margin: 15px;
+                padding: 15px;
+                width: 200px;
+                text-align: center;
+                transition: transform 0.3s ease;
+            }
+
+            .card:hover {
+                transform: translateY(-10px);
+            }
+
+            .card img {
+                max-width: 100%;
+                border-radius: 5px;
+                margin-top: 10px;
+            }
+
+            /* Currency display */
+            .currency-display {
+                display: flex;
+                align-items: center;
+                background: rgba(255, 215, 0, 0.2);
+                padding: 6px 12px;
+                border-radius: 20px;
+                margin-right: 15px;
+                border: 1px solid rgba(255, 215, 0, 0.3);
+            }
+
+            .currency-icon {
+                width: 20px;
+                height: 20px;
+                margin-right: 8px;
+                background-image: url('{% static "pokehub/images/coin.png" %}');
+                background-size: contain;
+            }
+
+            .currency-amount {
+                font-weight: bold;
+                color: #ffd700;
+            }
+
+            /* Auth controls */
+            .auth-controls {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .auth-btn {
+                padding: 8px 16px;
+                background: #007bff;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                text-decoration: none;
+                font-size: 14px;
+            }
+
+            .auth-btn:hover {
+                background: #0056b3;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <!-- Logo or site name -->
+            <div class="logo">
+                <h2>PokéHub</h2>
+            </div>
+
+            <!-- Auth and currency controls -->
+            <div class="auth-controls">
+                {% if user.is_authenticated %}
+                <div class="currency-display" title="Your PokéCoins">
+                    <div class="currency-icon"></div>
+                    <span class="currency-amount">{{ profile.currency }}</span>
+                </div>
+                <form action="{% url 'auths:logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="auth-btn">Logout</button>
+                </form>
+                {% else %}
+                <a href="{% url 'auths:login' %}" class="auth-btn">Login</a>
+                <a href="{% url 'auths:register' %}" class="auth-btn"
+                    >Register</a
+                >
+                {% endif %}
+            </div>
+        </header>
+
+        <main>
+            <h1>
+                Welcome{% if user.is_authenticated %}, {{ user.username }} {% endif %}!
+            </h1>
+            <p>Your central hub for all Pokémon activities.</p>
+
+            {% if user.is_authenticated %}
+            <div class="hub-actions">
+                <a href="{% url 'pokemon:list' %}" class="hub-btn"
+                    >View Pokémon</a
+                >
+                <a href="{% url 'accounts:profile' %}">My Profile</a>
+            </div>
+            {% endif %}
+            <div>
+                <div class="container">
+                    {% for card in cards %}
+                    <div
+                        class="card"
+                        onclick="location.href='/pokemon/card/?id={{card.id}}'"
+                    >
+                        <img src="{{card.small_image}}" alt="Pokémon Card" />
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </body>
 </html>

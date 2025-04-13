@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, ProfileCards
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'currency', 'is_banned', 'user_status')
@@ -11,7 +11,7 @@ class ProfileAdmin(admin.ModelAdmin):
     actions = ['add_currency', 'reset_currency']
     
     fieldsets = (
-        (None, {'fields': ('user', 'currency')}),
+        (None, {'fields': ('user', 'currency', 'cards')}),
         ('Moderation', {
             'fields': ('is_banned',),
             'classes': ('collapse',),
@@ -55,3 +55,4 @@ class CustomUserAdmin(UserAdmin):
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Profile, ProfileAdmin)
+admin.site.register(ProfileCards)
