@@ -4,7 +4,7 @@ django.setup()
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from accounts.models import ProfileCards, Profile
+from accounts.models import ProfileCards
 
 @login_required(login_url='auths:login')
 def hub_view(request):
@@ -12,6 +12,8 @@ def hub_view(request):
         page = request.GET.get("page")
     else:
         return redirect("/pokehub/hub?page=1")
+    
+    from accounts.models import Profile
     
     try:
         profile = Profile.objects.get(user=request.user)
