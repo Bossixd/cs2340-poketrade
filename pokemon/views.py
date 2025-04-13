@@ -136,25 +136,26 @@ def generate(request):
 
 
 def card(request):
-    full_url = request.get_full_path()
     id = request.GET.get('id')
-    from_param = request.GET.get('from', 'list')  # Default to list if not specified
-    query = request.GET.get('q', '')  # Get the search query if available
-    page = request.GET.get('page', '1')  # Get the current page if available
+    from_param = request.GET.get('from', 'list')
+    query = request.GET.get('q', '')
+    page = request.GET.get('page', '1')
 
-    card = Card.objects.get(id=id)
+    card_instance = Card.objects.get(id=id)
 
     context = {
-        'name': card.pokemon_info.name,
-        'type': card.type.split(",")[0].lower(),
-        'secondary_type': card.type.split(",")[1].lower() if len(card.type.split(",")) > 1 else None,
-        'hp': card.hp,
-        'image_url': card.large_image,
-        'from': from_param,  # Pass the 'from' parameter to the template
-        'query': query,  # Pass the search query
-        'page': page  # Pass the current page
+        'id': card_instance.id,  # Include the card id here
+        'name': card_instance.pokemon_info.name,
+        'type': card_instance.type.split(",")[0].lower(),
+        'secondary_type': card_instance.type.split(",")[1].lower() if len(card_instance.type.split(",")) > 1 else None,
+        'hp': card_instance.hp,
+        'image_url': card_instance.large_image,
+        'from': from_param,
+        'query': query,
+        'page': page
     }
     return render(request, 'pokemon/card.html', context=context)
+
 
 
 @staff_member_required

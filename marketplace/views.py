@@ -18,5 +18,5 @@ def set_desired(request):
         desired_card = request.POST.get("desired_card")
         if desired_card:
             request.session["desired_card_id"] = desired_card
-    desired_card = request.session.get("desired_card_id", None)
-    return render(request, "marketplace/set_desired.html", {"desired_card": desired_card})
+    return redirect('pokemon:list')
+
