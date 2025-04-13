@@ -10,9 +10,12 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import make_password
 
 from django.contrib.auth.models import User
-from accounts.models import Profile
+from accounts.models import Profile, ProfileCards
+from pokemon.models import Card
 
-# Create your views here.
+import random
+
+
 def register(request):
     if request.method == "GET":
         return render(request, 'auths/register.html', {})
@@ -36,7 +39,7 @@ def register(request):
                 "error_type": "email",
                 "error": "Email already exists!"
             })
-            
+
         try:
             validate_password(request.POST["password"])
         except:
@@ -45,29 +48,75 @@ def register(request):
                 "error": "Password is not strong enough!"
             })
 
-        user = User(username=request.POST["username"], email=request.POST["email"], password=make_password(request.POST["password"]))
+        # Create the user
+        user = User(username=request.POST["username"], email=request.POST["email"],
+                    password=make_password(request.POST["password"]))
         user.save()
+
+        # Get the user's profile (created via signal)
+        profile = Profile.objects.get(user=user)
+
+        # Define starter Pokémon names
+        starter_names = ['Bulbasaur', 'Charmander', 'Squirtle', 'Pikachu',
+                         'Chikorita', 'Cyndaquil', 'Totodile',
+                         'Treecko', 'Torchic', 'Mudkip',
+                         'Turtwig', 'Chimchar', 'Piplup',
+                         'Snivy', 'Tepig', 'Oshawott']
+
+        # Try to find cards for starter Pokémon
+        starter_cards = Card.objects.filter(pokemon_info__name__in=starter_names)
+
+        # If no specific starter cards exist, fall back to any cards
+        if not starter_cards.exists():
+            starter_cards = Card.objects.all()
+
+        if starter_cards.exists():
+            # Select a random starter card
+            random_card = random.choice(list(starter_cards))
+
+            # Link the card to the user's profile
+            ProfileCards.objects.create(profile=profile, cards=random_card)
+
+            # Redirect with starter_card parameter and the card name
+            card_name = random_card.pokemon_info.name
+            return HttpResponseRedirect(reverse("auths:login") + f"?starter_card=true&card_name={card_name}")
+
         return HttpResponseRedirect(reverse("auths:login"))
 
+
 def login(request):
+    # Check if the user was redirected from registration
+    starter_card = request.GET.get('starter_card', None)
+    card_name = request.GET.get('card_name', None)
+
+    context = {
+        'starter_card': starter_card,
+        'card_name': card_name
+    }
+
     if request.method == "GET":
-        return render(request, 'auths/login.html')
+        return render(request, 'auths/login.html', context)
     elif request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            profile = Profile.objects.get(user=user)
+            # Try to get the profile, create one if it doesn't exist
+            try:
+                profile = Profile.objects.get(user=user)
+            except Profile.DoesNotExist:
+                # Create a new profile for this user
+                profile = Profile.objects.create(user=user)
+
             if profile.is_banned:
-                return render(request, 'auths/login.html', {
-                    "error": "Your account has been banned. Please contact support."
-                })
+                context["error"] = "Your account has been banned. Please contact support."
+                return render(request, 'auths/login.html', context)
+
             auth_login(request, user)
             return redirect("landing:landing_page")
-    return render(request, 'auths/login.html', {
-        "error": "Invalid login credentials."
-    })
 
+        context["error"] = "Invalid login credentials."
+        return render(request, 'auths/login.html', context)
 def logout(request):
     auth.logout(request)
     # Redirect to hub page instead of homepage
