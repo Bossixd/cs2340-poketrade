@@ -4,13 +4,13 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
 from .models import Profile
 
-@login_required
+@login_required(login_url='auths:login')
 def profile_view(request):
     return render(request, 'accounts/profile.html', {
         'profile': request.user.profile
     })
 
-@login_required
+@login_required(login_url='auths:login')
 def edit_profile(request):
     if request.method == 'POST':
         # Add profile editing logic here
@@ -36,7 +36,7 @@ def unban_user(request, user_id):
     user.profile.save()
     return redirect('accounts:user_list')
 
-@login_required
+@login_required(login_url='auths:login')
 def add_currency(request):
     if request.method == 'POST':
         amount = int(request.POST.get('amount', 100))

@@ -19,7 +19,7 @@ def list(request):
     cards = Card.objects.filter(pokemon_info__name="Pikachu")
     return render(request, 'pokemon/list.html', {'cards': cards})
 
-@login_required(login_url='pokemon:generate')
+@login_required(login_url='auths:login')
 def generate(request):
     user = request.user
     if user is not None:
