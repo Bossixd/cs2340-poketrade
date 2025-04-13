@@ -88,6 +88,11 @@
                 font-family: Arial, sans-serif;
                 background-color: #f0f4f8;
             }
+            .instruction-message {
+                text-align: center;
+                margin: 20px;
+                font-size: 18px;
+            }
             .container {
                 display: flex;
                 flex-wrap: wrap;
@@ -155,26 +160,30 @@
             <button type="button" class="next-btn" onclick="location.href='?q={{ query }}&page={{ page|add:1 }}'">&gt;</button>
         </div>
 
+        <!-- Instruction Message -->
+        <div class="instruction-message">
+            <p>Tip: Click on any card to view its details. On the card page, you can select it as your desired card by clicking the "Select as Desired Card" button.</p>
+        </div>
+
         <div class="container">
-            {% if query == "$$$all" %} {% for card in cards %}
-            <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}'">
-                <img src="{{card.small_image}}" alt="Pokémon Card" />
-            </div>
-            {% endfor %} {% elif cards.count == 0 %}
-            <p>No Pokémon matched your search. Please search again.</p>
-            {% elif cards.count <= 10000 and query %} {% for card in cards %}
-            <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}&from=list'">
-                <img src="{{card.small_image}}" alt="Pokémon Card" />
-            </div>
-            {% endfor %} {% elif query %}
-            <p>
-                Too many Pokémon matched your search. Please refine your search.
-            </p>
+            {% if query == "$$$all" %}
+                {% for card in cards %}
+                    <div class="card" onclick="location.href='/pokemon/card/?id={{ card.id }}'">
+                        <img src="{{ card.small_image }}" alt="Pokémon Card" />
+                    </div>
+                {% endfor %}
+            {% elif cards.count == 0 %}
+                <p style="text-align: center;">No Pokémon matched your search. Please search again.</p>
+            {% elif cards.count <= 10000 and query %}
+                {% for card in cards %}
+                    <div class="card" onclick="location.href='/pokemon/card/?id={{ card.id }}&from=list'">
+                        <img src="{{ card.small_image }}" alt="Pokémon Card" />
+                    </div>
+                {% endfor %}
+            {% elif query %}
+                <p style="text-align: center;">Too many Pokémon matched your search. Please refine your search.</p>
             {% else %}
-            <p>
-                Too many Pokémon are available. Please refine by searching or
-                click display all above.
-            </p>
+                <p style="text-align: center;">Too many Pokémon are available. Please refine by searching or click display all above.</p>
             {% endif %}
         </div>
     </body>

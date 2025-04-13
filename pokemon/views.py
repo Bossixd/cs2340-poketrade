@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.db.models import Q
 from accounts.models import ProfileCards, Profile
 from .models import Card
+import re
 
 
 from auths.views import login
@@ -49,6 +50,7 @@ def list(request):
             filters = (
                     Q(pokemon_info__name__icontains=query) |
                     Q(type__icontains=query)
+
             )
 
             if query.isdigit():
@@ -134,6 +136,7 @@ def generate(request):
 
 
 def card(request):
+    full_url = request.get_full_path()
     id = request.GET.get('id')
     from_param = request.GET.get('from', 'list')  # Default to list if not specified
     query = request.GET.get('q', '')  # Get the search query if available
@@ -198,3 +201,12 @@ def create_starter_cards(request):
             created_count += 1
 
     return HttpResponse(f'Created {created_count} new starter Pokémon cards')
+
+import re
+
+def extract_card_id_from_url(url):
+    pattern = r'\?id=([^&]+)&from'
+    match = re.search(pattern, url)
+    if match:
+        return match.group(1)
+    return ''

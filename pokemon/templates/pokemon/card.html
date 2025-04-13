@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,7 +26,6 @@
             --type-ice: #96D9D6;
             --type-fighting: #C22E28;
         }
-
         body {
             margin: 0;
             font-family: 'Arial', sans-serif;
@@ -38,7 +38,6 @@
             align-items: center;
             padding: 20px;
         }
-
         .pokemon-card {
             width: 500px;
             background: white;
@@ -47,7 +46,6 @@
             overflow: hidden;
             border: 5px solid var(--pokemon-yellow);
         }
-
         .card-header {
             background: var(--pokemon-red);
             color: white;
@@ -55,14 +53,12 @@
             text-align: center;
             position: relative;
         }
-
         .card-name {
             margin: 0;
             font-size: 24px;
             text-transform: capitalize;
             letter-spacing: 1px;
         }
-
         .card-hp {
             position: absolute;
             top: 15px;
@@ -74,7 +70,6 @@
             font-weight: bold;
             font-size: 14px;
         }
-
         .card-image {
             height: 600px;
             background-color: #f0f0f0;
@@ -84,18 +79,15 @@
             position: relative;
             overflow: hidden;
         }
-
         .card-image img {
             max-height: 80%;
             max-width: 80%;
             height: 80%;
             transition: transform 0.3s;
         }
-
         .pokemon-card:hover .card-image img {
             transform: scale(1.1);
         }
-
         .card-types {
             display: flex;
             justify-content: center;
@@ -103,7 +95,6 @@
             padding: 10px;
             flex-wrap: wrap;
         }
-
         .type-badge {
             padding: 5px 15px;
             border-radius: 20px;
@@ -113,19 +104,26 @@
             font-size: 12px;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
-
         .card-details {
             padding: 15px;
             background: white;
             text-align: center;
         }
-
         .hp-text {
             font-weight: bold;
             color: var(--pokemon-blue);
             margin-top: 10px;
         }
-
+        .select-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: var(--pokemon-blue);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
         .back-button {
             margin-top: 20px;
             padding: 10px 20px;
@@ -137,7 +135,6 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-
         .back-button:hover {
             background-color: #2a3b99;
         }
@@ -157,6 +154,13 @@
             {% if secondary_type %}
                 <div class="type-badge" style="background-color: var(--type-{{ secondary_type }});">{{ secondary_type }}</div>
             {% endif %}
+        </div>
+        <div class="card-details">
+            <form action="{% url 'marketplace:set_desired' %}" method="post" style="margin: 0;">
+                {% csrf_token %}
+                <input type="hidden" name="desired_card" value="{{ id }}">
+                <button type="submit" class="select-btn">Select as Desired Card</button>
+            </form>
         </div>
     </div>
 

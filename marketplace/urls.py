@@ -6,4 +6,5 @@ app_name = 'marketplace'
 urlpatterns = [
     path('', views.home, name='home'),
     path('roll/', views.roll, name='roll'),
+    path('set_desired/', views.set_desired, name='set_desired'),
 ]
