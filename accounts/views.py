@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
 from .models import Profile
-
+from django.shortcuts import redirect
+from django.contrib.auth import logout as auth_logout
 @login_required(login_url='auths:login')
 def profile_view(request):
     return render(request, 'accounts/profile.html', {
@@ -44,3 +45,8 @@ def add_currency(request):
         request.user.profile.save()
         return redirect('accounts:profile')
     return render(request, 'accounts/add_currency.html')
+
+
+def logout(request):
+    auth_logout(request)
+    return redirect('/pokehub/')  # Explicitly redirect to /pokehub/

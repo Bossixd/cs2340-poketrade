@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from accounts.models import ProfileCards
 
+
 @login_required(login_url='auths:login')
 def hub_view(request):
     if request.GET.get("page"):
