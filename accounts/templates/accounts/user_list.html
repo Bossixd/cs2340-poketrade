@@ -26,9 +26,9 @@
             {% for user in users %}
             <tr>
                 <td>{{ user.username }}</td>
-                <td>{% if user.profile.is_banned %}Yes{% else %}No{% endif %}</td>
+                <td>{% if profile.is_banned %}Yes{% else %}No{% endif %}</td>
                 <td>
-                    {% if user.profile.is_banned %}
+                    {% if profile.is_banned %}
                         <a class="button" href="{% url 'accounts:unban_user' user.id %}">Unban</a>
                     {% else %}
                         <a class="button" href="{% url 'accounts:ban_user' user.id %}">Ban</a>

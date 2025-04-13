@@ -45,11 +45,12 @@ class ProfileInline(admin.StackedInline):
         return False
 
 class CustomUserAdmin(UserAdmin):
-    inlines = (ProfileInline,)
+    # inlines = (ProfileInline,)
     list_display = ('username', 'email', 'get_currency', 'is_staff')
     
     def get_currency(self, obj):
-        return obj.profile.currency
+        profile = Profile.objects.get(user=obj)
+        return profile.currency
     get_currency.short_description = 'Currency'
 
 admin.site.unregister(User)

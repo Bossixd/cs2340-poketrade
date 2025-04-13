@@ -7,7 +7,7 @@ from .models import Profile
 @login_required(login_url='auths:login')
 def profile_view(request):
     return render(request, 'accounts/profile.html', {
-        'profile': request.user.profile
+        'profile': Profile.objects.get(user=request.user)
     })
 
 @login_required(login_url='auths:login')
@@ -20,27 +20,31 @@ def edit_profile(request):
 @staff_member_required
 def user_list(request):
     users = User.objects.all().select_related('profile')
-    return render(request, 'accounts/user_list.html', {'users': users})
+    profile = Profile.objects.get(user=request.user)
+    return render(request, 'accounts/user_list.html', {'users': users, 'profile': profile})
 
 @staff_member_required
 def ban_user(request, user_id):
     user = get_object_or_404(User, pk=user_id)
-    user.profile.is_banned = True
-    user.profile.save()
+    profile = Profile.objects.get(user=request.user)
+    profile.is_banned = True
+    profile.save()
     return redirect('accounts:user_list')
 
 @staff_member_required
 def unban_user(request, user_id):
     user = get_object_or_404(User, pk=user_id)
-    user.profile.is_banned = False
-    user.profile.save()
+    profile = Profile.objects.get(user=request.user)
+    profile.is_banned = False
+    profile.save()
     return redirect('accounts:user_list')
 
 @login_required(login_url='auths:login')
 def add_currency(request):
     if request.method == 'POST':
         amount = int(request.POST.get('amount', 100))
-        request.user.profile.currency += amount
-        request.user.profile.save()
+        profile = Profile.objects.get(user=request.user)
+        profile.currency += amount
+        profile.save()
         return redirect('accounts:profile')
     return render(request, 'accounts/add_currency.html')

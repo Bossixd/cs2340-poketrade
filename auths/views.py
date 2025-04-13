@@ -10,6 +10,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import make_password
 
 from django.contrib.auth.models import User
+from accounts.models import Profile
 
 # Create your views here.
 def register(request):
@@ -56,7 +57,8 @@ def login(request):
         password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            if user.profile.is_banned:
+            profile = Profile.objects.get(user=request.user)
+            if profile.is_banned:
                 return render(request, 'auths/login.html', {
                     "error": "Your account has been banned. Please contact support."
                 })
