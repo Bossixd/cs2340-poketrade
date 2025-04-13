@@ -39,10 +39,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "pokemon",
-    "auths",
     "landing",
     "pokehub",
-    "accounts"
+    "accounts",
+    "auths",
 ]
 
 MIDDLEWARE = [
