@@ -1,7 +1,9 @@
 from django.urls import path
-from . import views
+from .views import hub_view
 
-app_name = "pokehub"
+app_name = 'pokehub'
+
 urlpatterns = [
-    path('hub/', views.main, name='hub'),
+    path('', hub_view, name='hub'),
+    path('hub/', hub_view, name='hub-alt'),
 ]

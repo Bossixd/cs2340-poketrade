@@ -62,7 +62,7 @@ def list(request):
     return render(request, 'pokemon/list.html', context)
 
 
-@login_required(login_url='pokemon:generate')
+@login_required(login_url='auths:login')
 def generate(request):
     user = request.user
     if user is not None:
