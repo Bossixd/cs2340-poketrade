@@ -38,6 +38,7 @@
         <option value="$MODULE_DIR$/landing/templates" />
         <option value="$MODULE_DIR$/pokehub/templates" />
         <option value="$MODULE_DIR$/pokemon/templates" />
+        <option value="$MODULE_DIR$/trade/templates" />
       </list>
     </option>
   </component>
