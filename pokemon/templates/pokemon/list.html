@@ -1,109 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <br />
-        <div style="display: flex; gap: 12px">
-            <button
-                type="button"
-                style="
-                    padding: 10px 15px;
-                    border-radius: 5px;
-                    border: none;
-                    background-color: rgb(228, 70, 70);
-                    color: white;
-                    cursor: pointer;
-                "
-                onclick="location.href='?q={{ query }}&page={{ page|add:-1 }}'"
-            >
-                <
-            </button>
-            <form method="GET" action="">
-                <input
-                    type="text"
-                    name="q"
-                    placeholder="Search Pokémon by id, name, hp, or type..."
-                    value="{{ query }}"
-                    style="
-                        width: 400px;
-                        padding: 10px;
-                        border-radius: 5px;
-                        border: 1px solid #ccc;
-                    "
-                />
-                <button
-                    type="submit"
-                    style="
-                        padding: 10px 15px;
-                        border-radius: 5px;
-                        border: none;
-                        background-color: #4caf50;
-                        color: white;
-                        cursor: pointer;
-                    "
-                >
-                    Search
-                </button>
-                <button
-                    type="button"
-                    class="return-btn"
-                    onclick="location.href='?q='"
-                    style="
-                        padding: 10px 15px;
-                        border-radius: 5px;
-                        border: none;
-                        background-color: #000000;
-                        color: white;
-                        cursor: pointer;
-                    "
-                >
-                    Return
-                </button>
-                <button
-                    type="button"
-                    class="display-all-btn"
-                    onclick="location.href='?q=$$$all'"
-                    style="
-                        padding: 10px 15px;
-                        border-radius: 5px;
-                        border: none;
-                        background-color: #008cba;
-                        color: white;
-                        cursor: pointer;
-                    "
-                >
-                    Display All
-                </button>
-            </form>
-            <button
-                type="button"
-                style="
-                    padding: 10px 15px;
-                    border-radius: 5px;
-                    border: none;
-                    background-color: rgb(228, 70, 70);
-                    color: white;
-                    cursor: pointer;
-                "
-                onclick="location.href='?q={{ query }}&page={{ page|add:1 }}'"
-            >
-                >
-            </button>
-        </div>
-
+        {% load static %}
         <meta charset="UTF-8" />
-        <title>{% block title %}Card Gallery{% endblock title %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Card Gallery</title>
         <style>
+            /* Header/Menu Bar Styles */
+            header {
+                background: #003057;
+                color: white;
+                padding: 15px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            header .logo h2 {
+                margin: 0;
+            }
+            header .logo a {
+                color: inherit;
+                text-decoration: none;
+            }
+            .auth-controls {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .auth-btn {
+                padding: 8px 16px;
+                background: #007bff;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                text-decoration: none;
+                font-size: 14px;
+            }
+            .auth-btn:hover {
+                background: #0056b3;
+            }
+            .currency-display {
+                font-weight: bold;
+                color: #ffd700;
+                margin-right: 15px;
+            }
+            /* Navigation/Search Bar Styles */
+            .search-nav {
+                display: flex;
+                gap: 12px;
+                align-items: center;
+                justify-content: center;
+                margin: 20px 0;
+            }
+            .search-nav button,
+            .search-nav input {
+                padding: 10px 15px;
+                border-radius: 5px;
+                border: none;
+                cursor: pointer;
+            }
+            .search-nav input {
+                width: 400px;
+                border: 1px solid #ccc;
+            }
+            .search-nav .prev-btn,
+            .search-nav .next-btn {
+                background-color: rgb(228, 70, 70);
+                color: white;
+            }
+            .search-nav .search-btn {
+                background-color: #4caf50;
+                color: white;
+            }
+            .search-nav .return-btn {
+                background-color: #000000;
+                color: white;
+            }
+            .search-nav .display-all-btn {
+                background-color: #008cba;
+                color: white;
+            }
+            /* Overall Body & Container Styles */
             body {
                 margin: 0;
                 padding: 0;
                 font-family: Arial, sans-serif;
                 background-color: #f0f4f8;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
             }
-
             .container {
                 display: flex;
                 flex-wrap: wrap;
@@ -111,7 +95,6 @@
                 max-width: 1200px;
                 margin: 20px auto;
             }
-
             .card {
                 background-color: #ffffff;
                 border-radius: 10px;
@@ -121,11 +104,9 @@
                 text-align: center;
                 transition: transform 0.3s ease;
             }
-
             .card:hover {
                 transform: translateY(-10px);
             }
-
             .card img {
                 max-width: 100%;
                 border-radius: 5px;
@@ -134,26 +115,66 @@
         </style>
     </head>
     <body>
+        <!-- Menu Bar -->
+        <header>
+            <div class="logo">
+                <h2><a href="/pokehub/hub">PokéHub</a></h2>
+            </div>
+            <div class="auth-controls">
+                {% if user.is_authenticated %}
+                    <div class="currency-display" title="Your PokéCoins">
+                        Coins: {{ profile.currency }}
+                    </div>
+                    <!-- Marketplace link shown only when user is logged in -->
+                    <a href="{% url 'marketplace:home' %}" class="auth-btn">Marketplace</a>
+                    <form action="{% url 'auths:logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="auth-btn">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'auths:login' %}" class="auth-btn">Login</a>
+                    <a href="{% url 'auths:register' %}" class="auth-btn">Register</a>
+                {% endif %}
+            </div>
+        </header>
+
+        <!-- Navigation/Search Bar -->
+        <div class="search-nav">
+            <button type="button" class="prev-btn" onclick="location.href='?q={{ query }}&page={{ page|add:-1 }}'">&lt;</button>
+            <form method="GET" action="">
+                <input
+                    type="text"
+                    name="q"
+                    placeholder="Search Pokémon by id, name, hp, or type..."
+                    value="{{ query }}"
+                />
+                <button type="submit" class="search-btn">Search</button>
+                <button type="button" class="return-btn" onclick="location.href='?q='">Return</button>
+                <button type="button" class="display-all-btn" onclick="location.href='?q=$$$all'">Display All</button>
+            </form>
+            <button type="button" class="next-btn" onclick="location.href='?q={{ query }}&page={{ page|add:1 }}'">&gt;</button>
+        </div>
+
+        <!-- Card Container -->
         <div class="container">
-            {% if query == "$$$all" %} {% for card in cards %}
-            <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}'">
-                <img src="{{card.small_image}}" alt="Pokémon Card" />
-            </div>
-            {% endfor %} {% elif cards.count == 0 %}
-            <p>No Pokémon matched your search. Please search again.</p>
-            {% elif cards.count <= 10000 and query %} {% for card in cards %}
-            <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}'">
-                <img src="{{card.small_image}}" alt="Pokémon Card" />
-            </div>
-            {% endfor %} {% elif query %}
-            <p>
-                Too many Pokémon matched your search. Please refine your search.
-            </p>
+            {% if query == "$$$all" %}
+                {% for card in cards %}
+                    <div class="card" onclick="location.href='/pokemon/card/?id={{ card.id }}'">
+                        <img src="{{ card.small_image }}" alt="Pokémon Card" />
+                    </div>
+                {% endfor %}
+            {% elif cards.count == 0 %}
+                <p>No Pokémon matched your search. Please search again.</p>
+            {% elif cards.count <= 10000 and query %}
+                {% for card in cards %}
+                    <div class="card" onclick="location.href='/pokemon/card/?id={{ card.id }}'">
+                        <img src="{{ card.small_image }}" alt="Pokémon Card" />
+                    </div>
+                {% endfor %}
+            {% elif query %}
+                <p>Too many Pokémon matched your search. Please refine your search.</p>
             {% else %}
-            <p>
-                Too many Pokémon are available. Please refine by searching or
-                click display all above.
-            </p>
+                <p>Too many Pokémon are available. Please refine by searching or click display all above.</p>
             {% endif %}
         </div>
     </body>

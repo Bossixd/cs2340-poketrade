@@ -1,0 +1,24 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <div class="logo">
+        <h2><a href="/pokehub/hub">PokéHub</a></h2>
+    </div>
+    <nav>
+        <ul style="list-style: none; margin: 0; padding: 0; display: flex; gap: 15px;">
+            <li><a href="/pokemon/list">Cards</a></li>
+            <li><a href="{% url 'marketplace:home' %}">Marketplace</a></li>
+            <li><a href="{% url 'marketplace:roll' %}">Roll</a></li>
+        </ul>
+    </nav>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace Home</title>
+</head>
+<body>
+    <h1>Welcome to the Marketplace!</h1>
+    <p>Explore and trade your Pokémon here.</p>
+</body>
+</html>
