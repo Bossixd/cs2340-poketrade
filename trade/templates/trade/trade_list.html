@@ -1,0 +1,66 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Trade Center</title> <style> body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; } .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); } h1, h2, h3 { color: #333; } .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee; } .btn { display: inline-block; background: #007bff; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; margin-right: 10px; } .btn:hover { background: #0056b3; } .btn-back { background: #6c757d; } .btn-back:hover { background: #5a6268; } .trade-list { margin-top: 20px; } .trade-item { background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; padding: 15px; margin-bottom: 15px; } .trade-details { display: flex; justify-content: space-between; } .trade-status { font-weight: bold; } .status-pending { color: #f39c12; } .status-accepted { color: #2ecc71; } .status-rejected, .status-canceled { color: #e74c3c; } .trade-date { color: #7f8c8d; font-size: 0.9em; } .message { padding: 10px 15px; margin-bottom: 20px; border-radius: 4px; } .message-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; } .message-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; } .trade-section { margin-bottom: 30px; } .empty-notice { color: #777; font-style: italic; text-align: center; padding: 20px; } </style> </head> <body> <div class="container"> <div class="header"> <h1>Trade Center</h1> <div> <a href="/pokehub/hub" class="btn btn-back">Back to Hub</a> <a href="{% url 'trade:new_trade' %}" class="btn">Create New Trade</a> </div> </div>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {% if message.tags %}message-{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="trade-section">
+        <h2>Pending Trades</h2>
+        {% if pending_trades %}
+            <div class="trade-list">
+                {% for trade in pending_trades %}
+                    <div class="trade-item">
+                        <div class="trade-details">
+                            <div>
+                                {% if trade.sender == profile %}
+                                    <strong>To:</strong> {{ trade.receiver.user.username }}
+                                {% else %}
+                                    <strong>From:</strong> {{ trade.sender.user.username }}
+                                {% endif %}
+                            </div>
+                            <div class="trade-status status-{{ trade.status }}">{{ trade.status|upper }}</div>
+                        </div>
+                        <div class="trade-date">{{ trade.created_at|date:"F j, Y, g:i a" }}</div>
+                        <div style="margin-top: 10px;">
+                            <a href="{% url 'trade:trade_detail' trade_id=trade.id %}" class="btn">View Details</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-notice">You have no pending trades.</p>
+        {% endif %}
+    </div>
+
+    <div class="trade-section">
+        <h2>Completed Trades</h2>
+        {% if completed_trades %}
+            <div class="trade-list">
+                {% for trade in completed_trades %}
+                    <div class="trade-item">
+                        <div class="trade-details">
+                            <div>
+                                {% if trade.sender == profile %}
+                                    <strong>To:</strong> {{ trade.receiver.user.username }}
+                                {% else %}
+                                    <strong>From:</strong> {{ trade.sender.user.username }}
+                                {% endif %}
+                            </div>
+                            <div class="trade-status status-{{ trade.status }}">{{ trade.status|upper }}</div>
+                        </div>
+                        <div class="trade-date">{{ trade.created_at|date:"F j, Y, g:i a" }}</div>
+                        <div style="margin-top: 10px;">
+                            <a href="{% url 'trade:trade_detail' trade_id=trade.id %}" class="btn">View Details</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-notice">You have no completed trades.</p>
+        {% endif %}
+    </div>
+</div>
+</body> </html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Trade</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .btn {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-right: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-back {
+            background: #6c757d;
+        }
+        .btn-back:hover {
+            background: #5a6268;
+        }
+        .btn-submit {
+            background: #28a745;
+        }
+        .btn-submit:hover {
+            background: #218838;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        .trade-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .trade-column {
+            width: 48%;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .card-item {
+            width: 100px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 5px;
+            background: white;
+            text-align: center;
+            position: relative;
+        }
+        .card-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 3px;
+        }
+        .card-checkbox {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+        .card-name {
+            font-size: 12px;
+            margin-top: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .message {
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .message-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .currency-info {
+            background: #e8f4fd;
+            padding: 10px;
+            border</style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Create New Trade</h1>
+            <a href="{% url 'trade:trade_list' %}" class="btn btn-back">Back to Trade Center</a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {% if message.tags %}message-{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" action="{% url 'trade:new_trade' %}">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="receiver_username">Trade with User:</label>
+                <div class="search-row">
+                    <input type="text" id="receiver_username" name="receiver_username" class="search-input" placeholder="Enter username" required>
+                    <button type="button" id="search-user-btn" class="btn">Search User</button>
+                </div>
+            </div>
+
+            <div class="currency-info">
+                <p><strong>Your current balance:</strong> {{ profile.currency }} coins</p>
+            </div>
+
+            <div class="trade-section">
+                <div class="trade-column">
+                    <h3>Your Offer</h3>
+
+                    <div class="form-group">
+                        <label for="sender_currency">Coins to offer:</label>
+                        <input type="number" id="sender_currency" name="sender_currency" min="0" max="{{ profile.currency }}" value="0" required>
+                    </div>
+
+                    <h4>Select cards to offer:</h4>
+                    <div class="card-container">
+                        {% if user_cards %}
+                            {% for profile_card in user_cards %}
+                                <div class="card-item">
+                                    <input type="checkbox" class="card-checkbox" name="sender_cards" value="{{ profile_card.cards.id }}" id="sender_card_{{ profile_card.cards.id }}">
+                                    <img src="{{ profile_card.cards.small_image }}" alt="{{ profile_card.cards.pokemon_info.name }}">
+                                    <div class="card-name">{{ profile_card.cards.pokemon_info.name }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>You don't have any cards to trade.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="trade-column">
+                    <h3>You're Requesting</h3>
+
+                    <div class="form-group">
+                        <label for="receiver_currency">Coins to request:</label>
+                        <input type="number" id="receiver_currency" name="receiver_currency" min="0" value="0" required>
+                    </div>
+
+                    <h4>User's cards:</h4>
+                    <div id="user-cards-results">
+                        <p>Search for a user to see their cards.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <button type="submit" class="btn btn-submit">Send Trade Offer</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('search-user-btn').addEventListener('click', function() {
+            const username = document.getElementById('receiver_username').value;
+
+            if (!username) {
+                alert('Please enter a username to search');
+                return;
+            }
+
+            // AJAX call to get user cards
+            fetch(`{% url 'trade:search_user_cards' %}?username=${username}`)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('user-cards-results').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error fetching user cards:', error);
+                    document.getElementById('user-cards-results').innerHTML = '<p>Error fetching user cards. Please try again.</p>';
+                });
+        });
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Trade</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .btn {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-right: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-back {
+            background: #6c757d;
+        }
+        .btn-back:hover {
+            background: #5a6268;
+        }
+        .btn-submit {
+            background: #28a745;
+        }
+        .btn-submit:hover {
+            background: #218838;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        .trade-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .trade-column {
+            width: 48%;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .card-item {
+            width: 100px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 5px;
+            background: white;
+            text-align: center;
+            position: relative;
+        }
+        .card-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 3px;
+        }
+        .card-checkbox {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+        .card-name {
+            font-size: 12px;
+            margin-top: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .message {
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .message-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .currency-info {
+            background: #e8f4fd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .search-section {
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+        .search-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .search-input {
+            flex-grow: 1;
+        }
+        #user-cards-results {
+            margin-top: 15px;
+        }

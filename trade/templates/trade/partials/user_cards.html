@@ -1,0 +1,25 @@
+{% if error %}
+    <div style="color: #721c24; background-color: #f8d7da; padding: 10px; border-radius: 4px;">
+        {{ error }}
+    </div>
+{% elif target_profile %}
+    <div class="currency-info">
+        <p><strong>{{ target_profile.user.username }}'s balance:</strong> {{ target_profile.currency }} coins</p>
+    </div>
+
+    <div class="card-container">
+        {% if user_cards %}
+            {% for profile_card in user_cards %}
+                <div class="card-item">
+                    <input type="checkbox" class="card-checkbox" name="receiver_cards" value="{{ profile_card.cards.id }}" id="receiver_card_{{ profile_card.cards.id }}">
+                    <img src="{{ profile_card.cards.small_image }}" alt="{{ profile_card.cards.pokemon_info.name }}">
+                    <div class="card-name">{{ profile_card.cards.pokemon_info.name }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>This user doesn't have any cards to trade.</p>
+        {% endif %}
+    </div>
+{% else %}
+    <p>No user found with that username.</p>
+{% endif %}

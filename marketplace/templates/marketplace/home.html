@@ -1,823 +1,384 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    {% load marketplace_filters %}
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokémon Card Summons</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #ff5350;
-            --secondary: #3d7dca;
-            --success: #4caf50;
-            --info: #03a9f4;
-            --warning: #ffc107;
-            --danger: #f44336;
-            --light: #f8f9fa;
-            --dark: #343a40;
-
-            /* Type colors */
-            --fire: #fd7d24;
-            --water: #4592c4;
-            --grass: #9bcc50;
-            --electric: #eed535;
-            --psychic: #f366b9;
-            --fighting: #d56723;
-            --colorless: #a4acaf;
-            --dark: #707070;
-            --fairy: #fdb9e9;
-            --dragon: #53a4cf;
-            --ghost: #7b62a3;
-            --bug: #729f3f;
-            --steel: #9eb7b8;
-            --ice: #51c4e7;
-            --rock: #a38c21;
-            --ground: #ab9842;
-            --poison: #b97fc9;
-            --flying: #bdb9b8;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            padding-bottom: 60px;
-            margin: 0;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header-banner {
-            background: linear-gradient(45deg, var(--electric), var(--fire));
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 40px;
-            text-align: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header-banner::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="white" stroke-width="4" fill="none" stroke-opacity="0.2"/><circle cx="50" cy="50" r="15" stroke="white" stroke-width="4" fill="none" stroke-opacity="0.2"/><line x1="50" y1="10" x2="50" y2="90" stroke="white" stroke-width="4" stroke-opacity="0.2"/></svg>');
-            background-repeat: repeat;
-            opacity: 0.1;
-        }
-
-        .page-title {
-            color: white;
-            font-size: 2.5rem;
-            margin: 0;
-            font-weight: 700;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-        }
-
-        /* Main content styling */
-        .main-content {
-            display: flex;
-            gap: 30px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-        }
-
-        .profile-card {
-            flex: 1;
-            min-width: 300px;
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .profile-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .profile-header {
-            background: linear-gradient(135deg, var(--secondary), #5e60ce);
-            color: white;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .profile-header::after {
-            content: "";
-            position: absolute;
-            right: -20px;
-            bottom: -20px;
-            width: 100px;
-            height: 100px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="white" stroke-width="2" fill="none" stroke-opacity="0.3"/><circle cx="50" cy="50" r="20" stroke="white" stroke-width="2" fill="none" stroke-opacity="0.3"/><line x1="50" y1="10" x2="50" y2="90" stroke="white" stroke-width="2" stroke-opacity="0.3"/><line x1="10" y1="50" x2="90" y2="50" stroke="white" stroke-width="2" stroke-opacity="0.3"/></svg>');
-            background-repeat: no-repeat;
-            opacity: 0.3;
-        }
-
-        .profile-title {
-            font-size: 1.5rem;
-            margin: 0 0 10px 0;
-            font-weight: 600;
-        }
-
-        .profile-body {
-            padding: 20px;
-        }
-
-        .profile-name {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
-
-        .profile-name i {
-            margin-right: 10px;
-            color: var(--secondary);
-        }
-
-        .profile-stat {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .stat-icon {
-            width: 36px;
-            height: 36px;
-            background: rgba(61, 125, 202, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            color: var(--secondary);
-        }
-
-        .stat-info {
-            flex-grow: 1;
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: #777;
-            margin-bottom: 3px;
-        }
-
-        .stat-value {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .desired-card {
-            background: rgba(61, 125, 202, 0.05);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-        }
-
-        .desired-card-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .desired-card-icon {
-            color: var(--warning);
-            margin-right: 10px;
-            font-size: 1.2rem;
-        }
-
-        .desired-card-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .pity-progress {
-            background: #e9ecef;
-            height: 8px;
-            border-radius: 4px;
-            margin-top: 15px;
-            overflow: hidden;
-        }
-
-        .pity-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--warning), var(--danger));
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
-
-        .change-card-btn {
-            display: inline-block;
-            padding: 8px 16px;
-            background: var(--secondary);
-            color: white;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            text-decoration: none;
-            margin-top: 15px;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-
-        .change-card-btn:hover {
-            background: #2c5c94;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        /* Element packs card */
-        .element-packs-card {
-            flex: 1.5;
-            min-width: 350px;
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .element-packs-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .element-header {
-            background: linear-gradient(135deg, var(--success), var(--info));
-            color: white;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .element-header::after {
-            content: "";
-            position: absolute;
-            right: -20px;
-            bottom: -20px;
-            width: 100px;
-            height: 100px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50,10 L90,50 L50,90 L10,50 Z" stroke="white" stroke-width="2" fill="none" stroke-opacity="0.3"/></svg>');
-            background-repeat: no-repeat;
-            opacity: 0.3;
-        }
-
-        .element-title {
-            font-size: 1.5rem;
-            margin: 0 0 10px 0;
-            font-weight: 600;
-        }
-
-        .element-body {
-            padding: 20px;
-        }
-
-        .element-intro {
-            margin-bottom: 20px;
-            font-size: 1rem;
-            color: #555;
-        }
-
-        .element-form {
-            background: rgba(0, 0, 0, 0.02);
-            border-radius: 10px;
-            padding: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .element-select {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            background: white;
-            font-size: 1rem;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            appearance: none;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-        }
-
-        .element-select:focus {
-            outline: none;
-            border-color: var(--secondary);
-            box-shadow: 0 0 0 3px rgba(61, 125, 202, 0.2);
-        }
-
-        .element-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .element-type {
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .element-type:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .element-fire { background-color: var(--fire); color: white; }
-        .element-water { background-color: var(--water); color: white; }
-        .element-grass { background-color: var(--grass); color: white; }
-        .element-electric { background-color: var(--electric); color: #333; }
-        .element-psychic { background-color: var(--psychic); color: white; }
-        .element-fighting { background-color: var(--fighting); color: white; }
-        .element-dark { background-color: var(--dark); color: white; }
-        .element-steel { background-color: var(--steel); color: #333; }
-        .element-fairy { background-color: var(--fairy); color: #333; }
-        .element-dragon { background-color: var(--dragon); color: white; }
-        .element-colorless { background-color: var(--colorless); color: #333; }
-
-        .roll-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-            flex-wrap: wrap;
-        }
-
-        .roll-btn {
-            flex: 1;
-            min-width: 140px;
-            padding: 12px 20px;
-            border-radius: 50px;
-            border: none;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .roll-btn i {
-            margin-right: 8px;
-        }
-
-        .single-roll {
-            background: linear-gradient(45deg, var(--primary), #ff7875);
-            color: white;
-            box-shadow: 0 4px 10px rgba(255, 83, 80, 0.3);
-        }
-
-        .multi-roll {
-            background: linear-gradient(45deg, var(--warning), #ffb74d);
-            color: #333;
-            box-shadow: 0 4px 10px rgba(255, 193, 7, 0.3);
-        }
-
-        .roll-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .single-roll:hover {
-            background: linear-gradient(45deg, #ff3d3a, #ff6b68);
-        }
-
-        .multi-roll:hover {
-            background: linear-gradient(45deg, #ffba00, #ffa726);
-        }
-
-        .roll-price {
-            display: flex;
-            align-items: center;
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin-top: 3px;
-        }
-
-        .roll-price i {
-            margin-right: 5px;
-            font-size: 0.8rem;
-        }
-
-        .login-alert {
-            background: linear-gradient(45deg, var(--warning), #ffcc80);
-            color: #333;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            max-width: 600px;
-            margin: 100px auto;
-        }
-
-        .login-icon {
-            font-size: 3rem;
-            color: white;
-            background: rgba(0, 0, 0, 0.1);
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .login-message {
-            font-size: 1.2rem;
-            margin-bottom: 25px;
-            color: #333;
-        }
-
-        .login-btn {
-            display: inline-block;
-            padding: 12px 30px;
-            background: white;
-            color: var(--warning);
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .login-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-        }
-
-        /* Floating animation */
-        @keyframes floating {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-
-        .floating {
-            animation: floating 3s ease-in-out infinite;
-        }
-
-        /* Messages styling */
-        .messages {
-            margin-bottom: 30px;
-        }
-
-        .alert {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-
-        .alert-icon {
-            margin-right: 15px;
-            font-size: 1.3rem;
-        }
-
-        .alert-success {
-            background-color: rgba(76, 175, 80, 0.1);
-            color: var(--success);
-            border-left: 4px solid var(--success);
-        }
-
-        .alert-info {
-            background-color: rgba(3, 169, 244, 0.1);
-            color: var(--info);
-            border-left: 4px solid var(--info);
-        }
-
-        .alert-warning {
-            background-color: rgba(255, 193, 7, 0.1);
-            color: var(--warning);
-            border-left: 4px solid var(--warning);
-        }
-
-        .alert-danger {
-            background-color: rgba(244, 67, 54, 0.1);
-            color: var(--danger);
-            border-left: 4px solid var(--danger);
-        }
-
-        /* Responsive styling */
-        @media (max-width: 768px) {
-            .header-banner {
+    <head>
+        {% load static %}
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Marketplace</title>
+        <style>
+            /* Header/Menu Bar Styles */
+            header {
+                background: #003057;
+                color: white;
+                padding: 15px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            header .logo h2 {
+                margin: 0;
+            }
+            header .logo a {
+                color: inherit;
+                text-decoration: none;
+            }
+            .auth-controls {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .auth-btn {
+                padding: 8px 16px;
+                background: #007bff;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                text-decoration: none;
+                font-size: 14px;
+            }
+            .auth-btn:hover {
+                background: #0056b3;
+            }
+            .currency-display {
+                font-weight: bold;
+                color: #ffd700;
+                margin-right: 15px;
+                background: rgba(0, 0, 0, 0.3);
+                padding: 8px 12px;
+                border-radius: 4px;
+            }
+
+            /* Filter/Control Panel Styles */
+            .marketplace-controls {
+                background: #f0f4f8;
                 padding: 20px;
+                border-radius: 8px;
+                margin: 20px auto;
+                max-width: 1200px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .filter-form {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 15px;
+                align-items: center;
+            }
+            .filter-group {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .filter-group label {
+                font-weight: bold;
+                color: #444;
+            }
+            .filter-group input, .filter-group select {
+                padding: 8px 12px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+            .action-buttons {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 15px;
+            }
+            .primary-btn {
+                background: #4caf50;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+                text-decoration: none;
+            }
+            .primary-btn:hover {
+                background: #3d8b40;
+            }
+            .secondary-btn {
+                background: #ff9800;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+                text-decoration: none;
+            }
+            .secondary-btn:hover {
+                background: #e68a00;
             }
 
-            .page-title {
-                font-size: 2rem;
+            /* Listings Grid Styles */
+            .listings-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+                gap: 20px;
+                max-width: 1200px;
+                margin: 0 auto 40px auto;
             }
-
-            .main-content {
+            .listing-card {
+                background: white;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                display: flex;
                 flex-direction: column;
+                transition: transform 0.2s;
             }
-
-            .profile-card, .element-packs-card {
+            .listing-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            }
+            .card-image {
+                height: 200px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: #f5f5f5;
+                overflow: hidden;
+            }
+            .card-image img {
+                max-width: 90%;
+                max-height: 90%;
+            }
+            .card-info {
+                padding: 15px;
+            }
+            .card-name {
+                font-weight: bold;
+                font-size: 18px;
+                margin-bottom: 5px;
+            }
+            .card-type {
+                color: #666;
+                margin-bottom: 10px;
+            }
+            .card-price {
+                font-weight: bold;
+                color: #e67700;
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+            .card-actions {
+                padding: 0 15px 15px 15px;
+                margin-top: auto;
+            }
+            .buy-btn {
+                display: block;
                 width: 100%;
+                padding: 10px;
+                background: #4caf50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+                text-align: center;
+            }
+            .buy-btn:hover {
+                background: #3d8b40;
+            }
+            .buy-btn[disabled] {
+                background: #cccccc;
+                cursor: not-allowed;
             }
 
-            .roll-buttons {
-                flex-direction: column;
+            /* Message Banner */
+            .message-container {
+                max-width: 1200px;
+                margin: 20px auto;
+            }
+            .message {
+                padding: 10px 15px;
+                border-radius: 4px;
+                margin-bottom: 10px;
+            }
+            .message.success {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+            .message.error {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
             }
 
-            .roll-btn {
-                width: 100%;
+            /* Pagination Styles */
+            .pagination {
+                display: flex;
+                justify-content: center;
+                margin: 20px 0;
+                gap: 5px;
             }
-        }
-
-        /* Card animation on hover */
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(61, 125, 202, 0.4);
+            .pagination a, .pagination .current {
+                padding: 8px 12px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                text-decoration: none;
+                color: #007bff;
             }
-            70% {
-                box-shadow: 0 0 0 10px rgba(61, 125, 202, 0);
+            .pagination .current {
+                background-color: #007bff;
+                color: white;
+                border-color: #007bff;
             }
-            100% {
-                box-shadow: 0 0 0 0 rgba(61, 125, 202, 0);
+            .pagination a:hover {
+                background-color: #f0f0f0;
             }
-        }
 
-        /* Add sparkle effects */
-        .sparkle {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            opacity: 0;
-            z-index: 2;
-            pointer-events: none;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header-banner animate__animated animate__fadeIn">
-            <h1 class="page-title animate__animated animate__fadeInDown">Pokémon Card Summons</h1>
-        </div>
+            /* Empty state */
+            .empty-state {
+                text-align: center;
+                padding: 40px 20px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                max-width: 600px;
+                margin: 40px auto;
+            }
+            .empty-state h3 {
+                color: #333;
+                margin-bottom: 10px;
+            }
+            .empty-state p {
+                color: #666;
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Menu Bar -->
+        <header>
+            <div class="logo">
+                <h2><a href="/pokehub/hub">PokéHub</a></h2>
+            </div>
+            <!-- Using a flex container for the button group -->
+            <div class="auth-controls">
+                {% if profile %}
+                <div class="currency-display">
+                    Coins: {{ profile.currency }}
+                </div>
+                {% endif %}
+                <a href="{% url 'pokehub:hub' %}" class="auth-btn">Home</a>
+                <a href="{% url 'marketplace:roll' %}" class="auth-btn">Summon</a>
+                <a href="{% url 'marketplace:my_listings' %}" class="auth-btn">My Listings</a>
+                <a href="{% url 'accounts:profile' %}" class="auth-btn">My Profile</a>
+                <form action="{% url 'auths:logout' %}" method="post" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="auth-btn">Logout</button>
+                </form>
+            </div>
+        </header>
 
-        {% if messages %}
-            <div class="messages animate__animated animate__fadeIn">
+        <!-- Message container for notifications -->
+        <div class="message-container">
+            {% if messages %}
                 {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        <div class="alert-icon">
-                            {% if message.tags == 'success' %}
-                                <i class="fas fa-check-circle"></i>
-                            {% elif message.tags == 'info' %}
-                                <i class="fas fa-info-circle"></i>
-                            {% elif message.tags == 'warning' %}
-                                <i class="fas fa-exclamation-triangle"></i>
-                            {% elif message.tags == 'danger' %}
-                                <i class="fas fa-times-circle"></i>
-                            {% else %}
-                                <i class="fas fa-bell"></i>
-                            {% endif %}
-                        </div>
+                    <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
                         {{ message }}
                     </div>
                 {% endfor %}
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
 
-        {% if user.is_authenticated %}
-            <div class="main-content">
-                <div class="profile-card animate__animated animate__fadeInLeft">
-                    <div class="profile-header">
-                        <h2 class="profile-title">Your Trainer Profile</h2>
-                    </div>
-                    <div class="profile-body">
-                        <div class="profile-name">
-                            <i class="fas fa-user-circle"></i>
-                            {{ user.username }}
-                        </div>
-
-                        <div class="profile-stat">
-                            <div class="stat-icon">
-                                <i class="fas fa-coins"></i>
-                            </div>
-                            <div class="stat-info">
-                                <div class="stat-label">Coins Balance</div>
-                                <div class="stat-value">{{ profile.currency }}</div>
-                            </div>
-                        </div>
-
-                        <div class="desired-card">
-                            <div class="desired-card-header">
-                                <div class="desired-card-icon">
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <div class="desired-card-title">Desired Card</div>
-                            </div>
-
-                            {% if desired_card.card %}
-                                <div class="stat-value">{{ desired_card.card.pokemon_info.name }}</div>
-                                <div class="stat-label">Pity Counter: {{ desired_card.pity_counter }}</div>
-
-                                <div style="width:480px; background: #e9ecef; border-radius:4px; overflow:hidden; margin-top:10px;">
-  <div class="pity-bar" style="width: {{ desired_card.pity_counter|mul:"0.2"|floatformat:0 }}%; height:8px; background: linear-gradient(90deg, var(--warning), var(--danger));"></div>
-</div>
-
-                                <a href="{% url 'pokemon:list' %}" class="change-card-btn">
-                                    <i class="fas fa-exchange-alt"></i> Change Card
-                                </a>
-                            {% else %}
-                                <div class="stat-label">No desired card set</div>
-                                <a href="{% url 'pokemon:list' %}" class="change-card-btn">
-                                    <i class="fas fa-plus"></i> Set Desired Card
-                                </a>
-                            {% endif %}
-                        </div>
-                    </div>
+        <!-- Marketplace Controls -->
+        <div class="marketplace-controls">
+            <form class="filter-form" method="GET" action="{% url 'marketplace:home' %}">
+                <div class="filter-group">
+                    <label for="search">Search:</label>
+                    <input type="text" id="search" name="q" placeholder="Pokémon name or type..." value="{{ search_query }}">
                 </div>
+                <div class="filter-group">
+                    <label for="min_price">Min Price:</label>
+                    <input type="number" id="min_price" name="min_price" placeholder="Min" min="1" max="999999" value="{{ min_price }}">
+                </div>
+                <div class="filter-group">
+                    <label for="max_price">Max Price:</label>
+                    <input type="number" id="max_price" name="max_price" placeholder="Max" min="1" max="999999" value="{{ max_price }}">
+                </div>
+                <div class="filter-group">
+                    <label for="sort">Sort By:</label>
+                    <select id="sort" name="sort">
+                        <option value="-listed_at" {% if sort_by == '-listed_at' %}selected{% endif %}>Newest First</option>
+                        <option value="listed_at" {% if sort_by == 'listed_at' %}selected{% endif %}>Oldest First</option>
+                        <option value="price" {% if sort_by == 'price' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="-price" {% if sort_by == '-price' %}selected{% endif %}>Price: High to Low</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button type="submit" class="auth-btn">Apply Filters</button>
+                    <a href="{% url 'marketplace:home' %}" class="auth-btn" style="background: #dc3545;">Reset</a>
+                </div>
+            </form>
 
-                <div class="element-packs-card animate__animated animate__fadeInRight">
-                    <div class="element-header">
-                        <h2 class="element-title">Element Type Packs</h2>
+            <div class="action-buttons">
+                <a href="{% url 'marketplace:list_card' %}" class="primary-btn">List a Card for Sale</a>
+                <a href="{% url 'marketplace:my_listings' %}" class="secondary-btn">View My Listings</a>
+            </div>
+        </div>
+
+        <!-- Listings Display -->
+        {% if listings %}
+            <div class="listings-container">
+                {% for listing in listings %}
+                <div class="listing-card">
+                    <div class="card-image">
+                        <img src="{{ listing.card.small_image }}" alt="{{ listing.card.pokemon_info.name }}">
                     </div>
-                    <div class="element-body">
-                        <p class="element-intro">Choose an element type pack to summon rare and powerful Pokémon cards!</p>
-
-                        <form method="post" action="{% url 'marketplace:roll' %}" class="element-form" id="rollForm">
+                    <div class="card-info">
+                        <div class="card-name">{{ listing.card.pokemon_info.name }}</div>
+                        <div class="card-type">Type: {{ listing.card.type }}</div>
+                        <div class="card-type">HP: {{ listing.card.hp }}</div>
+                        <div class="card-price">{{ listing.price }} Coins</div>
+                        <div class="card-seller">Seller: {{ listing.seller.user.username }}</div>
+                    </div>
+                    <div class="card-actions">
+                        <form method="POST" action="{% url 'marketplace:buy_card' listing.id %}">
                             {% csrf_token %}
-
-                            <div class="form-group">
-                                <label for="element_type" class="form-label">Element Type:</label>
-                                <select name="element_type" id="element_type" class="element-select" required>
-                                    {% for type in element_types %}
-                                        <option value="{{ type }}">{{ type|title }}</option>
-                                    {% endfor %}
-                                </select>
-
-                                <div class="element-options">
-                                    <span class="element-type element-fire">Fire</span>
-                                    <span class="element-type element-water">Water</span>
-                                    <span class="element-type element-grass">Grass</span>
-                                    <span class="element-type element-electric">Electric</span>
-                                    <span class="element-type element-psychic">Psychic</span>
-                                          <span class="element-type element-fighting">Fighting</span>
-                                          <span class="element-type element-dark">Dark</span>
-                                          <span class="element-type element-steel">Steel</span>
-                                          <span class="element-type element-fairy">Fairy</span>
-                                          <span class="element-type element-dragon">Dragon</span>
-                                          <span class="element-type element-colorless">Colorless</span>
-                                </div>
-                            </div>
-
-                            <div class="roll-buttons">
-                                <button type="button" id="singleRollBtn" class="roll-btn single-roll">
-                                    <i class="fas fa-dice"></i> Summon Once
-                                    <div class="roll-price">
-                                        <i class="fas fa-coins"></i> 160 coins
-                                    </div>
-                                </button>
-
-                                <button type="button" id="multiRollBtn" class="roll-btn multi-roll pulse">
-                                    <i class="fas fa-dice-d20"></i> Summon 10x
-                                    <div class="roll-price">
-                                        <i class="fas fa-coins"></i> 1600 coins
-                                    </div>
-                                </button>
-
-                                <!-- Hidden input for roll type -->
-                                <input type="hidden" name="roll_type" id="rollType" value="">
-                            </div>
+                            <button type="submit" class="buy-btn" {% if profile.currency < listing.price or listing.seller.user == user %}disabled{% endif %}>
+                                {% if profile.currency < listing.price %}
+                                    Not Enough Coins
+                                {% elif listing.seller.user == user %}
+                                    Your Listing
+                                {% else %}
+                                    Buy Now
+                                {% endif %}
+                            </button>
                         </form>
                     </div>
                 </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                {% if listings.has_previous %}
+                    <a href="?q={{ search_query }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort_by }}&page=1">&laquo; First</a>
+                    <a href="?q={{ search_query }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort_by }}&page={{ listings.previous_page_number }}">Previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ listings.number }} of {{ listings.paginator.num_pages }}
+                </span>
+
+                {% if listings.has_next %}
+                    <a href="?q={{ search_query }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort_by }}&page={{ listings.next_page_number }}">Next</a>
+                    <a href="?q={{ search_query }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort_by }}&page={{ listings.paginator.num_pages }}">Last &raquo;</a>
+                {% endif %}
             </div>
         {% else %}
-            <div class="login-alert animate__animated animate__fadeIn">
-                <div class="login-icon floating">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <div class="login-message">Please log in to summon Pokémon cards</div>
-                <a href="{% url 'auths:login' %}" class="login-btn">
-                    <i class="fas fa-sign-in-alt"></i> Login Now
-                </a>
+            <div class="empty-state">
+                <h3>No listings found</h3>
+                <p>There are currently no cards available in the marketplace matching your filters.</p>
+                {% if search_query or min_price or max_price %}
+                    <a href="{% url 'marketplace:home' %}" class="primary-btn">Clear Filters</a>
+                {% else %}
+                    <a href="{% url 'marketplace:list_card' %}" class="primary-btn">List Your Card</a>
+                {% endif %}
             </div>
         {% endif %}
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Element type selector
-            const elementSelect = document.getElementById('element_type');
-            const elementTypes = document.querySelectorAll('.element-type');
-            const rollForm = document.getElementById('rollForm');
-            const rollTypeInput = document.getElementById('rollType');
-            const singleRollBtn = document.getElementById('singleRollBtn');
-            const multiRollBtn = document.getElementById('multiRollBtn');
-
-            // Set up roll button event listeners
-            if (singleRollBtn) {
-                singleRollBtn.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    rollTypeInput.value = 'single';
-                    rollForm.submit();
-                });
-            }
-
-            if (multiRollBtn) {
-                multiRollBtn.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    rollTypeInput.value = 'ten';
-                    rollForm.submit();
-                });
-            }
-
-            // Element type selection
-            elementTypes.forEach(type => {
-                type.addEventListener('click', function() {
-                    const typeName = this.textContent.toLowerCase();
-                    elementSelect.value = typeName;
-
-                    // Add active class
-                    elementTypes.forEach(el => el.classList.remove('active'));
-                    this.classList.add('active');
-
-                    // Add sparkle effect
-                    createSparkle(this);
-                });
-            });
-
-            // Create sparkle animation
-            function createSparkle(element) {
-                for (let i = 0; i < 5; i++) {
-                    const sparkle = document.createElement('div');
-                    sparkle.className = 'sparkle';
-                    sparkle.style.width = Math.random() * 8 + 2 + 'px';
-                    sparkle.style.height = sparkle.style.width;
-                    sparkle.style.left = Math.random() * 100 + '%';
-                    sparkle.style.top = Math.random() * 100 + '%';
-
-                    element.appendChild(sparkle);
-
-                    // Animate sparkle
-                    setTimeout(() => {
-                        sparkle.style.opacity = 1;
-                        setTimeout(() => {
-                            sparkle.style.opacity = 0;
-                            setTimeout(() => {
-                                sparkle.remove();
-                            }, 300);
-                        }, 300);
-                    }, i * 100);
-                }
-            }
-
-            // Add hover effect to cards
-            const cards = document.querySelectorAll('.profile-card, .element-packs-card');
-            cards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.classList.add('shadow-pulse');
-                });
-
-                card.addEventListener('mouseleave', function() {
-                    this.classList.remove('shadow-pulse');
-                });
-            });
-        });
-    </script>
-</body>
+    </body>
 </html>
