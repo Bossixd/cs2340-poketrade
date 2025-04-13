@@ -171,6 +171,7 @@
             <div class="hub-actions">
                 <a href="{% url 'pokemon:list' %}" class="hub-btn">View Pokémon</a>
                 <a href="{% url 'accounts:profile' %}" class="hub-btn">My Profile</a>
+                <a href="{% url 'trade:trade_list' %}" class="hub-btn">Trading Center</a>
             </div>
             {% else %}
             <div class="info-message">
@@ -194,7 +195,9 @@
                         {% else %}
                             <p>You don't have any cards yet!</p>
                         {% endif %}
+
                     </div>
+
                 {% else %}
                     <h2 class="section-title">Featured Pokémon Cards</h2>
                     <div class="container">
