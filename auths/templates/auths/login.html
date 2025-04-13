@@ -1,6 +1,6 @@
 {% extends 'auths/base.html' %}
 
-{% block title %}Registration{% endblock title %}
+{% block title %}Login{% endblock title %}
 
 {% block content %}
 <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
@@ -8,6 +8,19 @@
         <form action="{% url 'auths:login' %}" method="post">
             {% csrf_token %}
             <div style="padding-top: 12px; padding-bottom: 18px; font-size: 48px; font-weight: bold; width: 100%; display: flex; justify-content: center;">Login</div>
+
+            {% if starter_card %}
+            <div style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-bottom: 15px; text-align: center;">
+                <strong>Registration successful!</strong>
+                {% if card_name %}
+                    You received a <strong>{{ card_name }}</strong> as your starter Pokémon!
+                {% else %}
+                    You received a starter Pokémon card!
+                {% endif %}
+                Check your collection after login!
+            </div>
+            {% endif %}
+
             <div style="display: flex; flex-direction: column; padding: 12px; gap: 24px; font-size: 24px;">
                 <div style="display: flex; flex-direction: column;">
                     Username

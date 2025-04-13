@@ -188,7 +188,7 @@
                     <div class="container">
                         {% if cards %}
                             {% for card in cards %}
-                            <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}'">
+                            <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}&from=hub'">
                                 <img src="{{card.small_image}}" alt="Pokémon Card" />
                             </div>
                             {% endfor %}
@@ -201,7 +201,7 @@
                     <div class="container">
                         {% if cards %}
                             {% for card in cards %}
-                            <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}'">
+                            <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}&from=hub'">
                                 <img src="{{card.small_image}}" alt="Pokémon Card" />
                             </div>
                             {% endfor %}
