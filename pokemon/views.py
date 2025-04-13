@@ -122,17 +122,25 @@ def generate(request):
         }
 
         return render(request, 'pokemon/card.html', context=context)
-    
+
+
 def card(request):
-    id = request.GET['id']
+    id = request.GET.get('id')
+    from_param = request.GET.get('from', 'list')  # Default to list if not specified
+    query = request.GET.get('q', '')  # Get the search query if available
+    page = request.GET.get('page', '1')  # Get the current page if available
+
     card = Card.objects.get(id=id)
-    
+
     context = {
         'name': card.pokemon_info.name,
         'type': card.type.split(",")[0].lower(),
         'secondary_type': card.type.split(",")[1].lower() if len(card.type.split(",")) > 1 else None,
         'hp': card.hp,
-        'image_url': card.large_image
+        'image_url': card.large_image,
+        'from': from_param,  # Pass the 'from' parameter to the template
+        'query': query,  # Pass the search query
+        'page': page  # Pass the current page
     }
     return render(request, 'pokemon/card.html', context=context)
 
