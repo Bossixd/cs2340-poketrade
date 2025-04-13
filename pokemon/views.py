@@ -1,7 +1,9 @@
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.db.models import Q
+from accounts.models import ProfileCards, Profile
 from .models import Card
 
 
@@ -59,6 +61,14 @@ def list(request):
     
 
     context = {'cards': cards, 'query': query, 'page': page}
+
+    if request.user.is_authenticated:
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            profile = None
+        context['profile'] = profile
+
     return render(request, 'pokemon/list.html', context)
 
 
@@ -110,7 +120,6 @@ def generate(request):
         
         card = Card(pokemon_info=pokemon, type=f"{type}, {secondary_type}", hp=hp, small_image=url, large_image=url)
         card.save()
-        
         context = {
             'name': name,
             'type': type.lower(),

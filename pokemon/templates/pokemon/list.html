@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        {% load static %}
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Card Gallery</title>
@@ -16,6 +17,10 @@
             }
             header .logo h2 {
                 margin: 0;
+            }
+            header .logo a {
+                color: inherit;
+                text-decoration: none;
             }
             .auth-controls {
                 display: flex;
@@ -36,26 +41,10 @@
                 background: #0056b3;
             }
             .currency-display {
-                display: flex;
-                align-items: center;
-                background: rgba(255, 215, 0, 0.2);
-                padding: 6px 12px;
-                border-radius: 20px;
-                margin-right: 15px;
-                border: 1px solid rgba(255, 215, 0, 0.3);
-            }
-            .currency-icon {
-                width: 20px;
-                height: 20px;
-                margin-right: 8px;
-                background-image: url('{% "pokemon/images/coin.png" %}');
-                background-size: contain;
-            }
-            .currency-amount {
                 font-weight: bold;
                 color: #ffd700;
+                margin-right: 15px;
             }
-            
             /* Navigation/Search Bar Styles */
             .search-nav {
                 display: flex;
@@ -92,7 +81,6 @@
                 background-color: #008cba;
                 color: white;
             }
-            
             /* Overall Body & Container Styles */
             body {
                 margin: 0;
@@ -130,21 +118,22 @@
         <!-- Menu Bar -->
         <header>
             <div class="logo">
-                <h2>PokéHub</h2>
+                <h2><a href="/pokehub/hub">PokéHub</a></h2>
             </div>
             <div class="auth-controls">
                 {% if user.is_authenticated %}
-                <div class="currency-display" title="Your PokéCoins">
-                    <div class="currency-icon"></div>
-                    <span class="currency-amount">{{ profile.currency }}</span>
-                </div>
-                <form action="{% url 'auths:logout' %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="auth-btn">Logout</button>
-                </form>
+                    <div class="currency-display" title="Your PokéCoins">
+                        Coins: {{ profile.currency }}
+                    </div>
+                    <!-- Marketplace link shown only when user is logged in -->
+                    <a href="{% url 'marketplace:home' %}" class="auth-btn">Marketplace</a>
+                    <form action="{% url 'auths:logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="auth-btn">Logout</button>
+                    </form>
                 {% else %}
-                <a href="{% url 'auths:login' %}" class="auth-btn">Login</a>
-                <a href="{% url 'auths:register' %}" class="auth-btn">Register</a>
+                    <a href="{% url 'auths:login' %}" class="auth-btn">Login</a>
+                    <a href="{% url 'auths:register' %}" class="auth-btn">Register</a>
                 {% endif %}
             </div>
         </header>
@@ -170,17 +159,17 @@
         <div class="container">
             {% if query == "$$$all" %}
                 {% for card in cards %}
-                <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}'">
-                    <img src="{{card.small_image}}" alt="Pokémon Card" />
-                </div>
+                    <div class="card" onclick="location.href='/pokemon/card/?id={{ card.id }}'">
+                        <img src="{{ card.small_image }}" alt="Pokémon Card" />
+                    </div>
                 {% endfor %}
             {% elif cards.count == 0 %}
                 <p>No Pokémon matched your search. Please search again.</p>
             {% elif cards.count <= 10000 and query %}
                 {% for card in cards %}
-                <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}'">
-                    <img src="{{card.small_image}}" alt="Pokémon Card" />
-                </div>
+                    <div class="card" onclick="location.href='/pokemon/card/?id={{ card.id }}'">
+                        <img src="{{ card.small_image }}" alt="Pokémon Card" />
+                    </div>
                 {% endfor %}
             {% elif query %}
                 <p>Too many Pokémon matched your search. Please refine your search.</p>

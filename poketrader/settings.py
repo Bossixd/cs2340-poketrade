@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "pokehub",
     "accounts",
     "auths",
+    "marketplace"
 ]
 
 MIDDLEWARE = [

@@ -27,4 +27,5 @@ urlpatterns = [
     path("landing/", include("landing.urls")),
     path("pokehub/", include("pokehub.urls")),
     path('accounts/', include('accounts.urls')),
+    path('marketplace/', include('marketplace.urls')),
 ]
