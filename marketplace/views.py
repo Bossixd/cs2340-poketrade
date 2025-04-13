@@ -10,10 +10,3 @@ def roll(request):
         'result': 'roll sucessful',
     }
     return render(request, 'marketplace/roll.html', context)
-
-def trade(request):
-
-    context = {
-        'message': 'welcome to trading',
-    }
-    return render(request, 'marketplace/trade.html', context)
