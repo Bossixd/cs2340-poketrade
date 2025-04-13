@@ -115,6 +115,46 @@
         </style>
     </head>
     <body>
+        <!-- Menu Bar -->
+        <header>
+            <div class="logo">
+                <h2><a href="/pokehub/hub">PokéHub</a></h2>
+            </div>
+            <div class="auth-controls">
+                {% if user.is_authenticated %}
+                    <div class="currency-display" title="Your PokéCoins">
+                        Coins: {{ profile.currency }}
+                    </div>
+                    <a href="{% url 'pokehub:hub' %}" class="auth-btn">Home</a>
+                    <form action="{% url 'auths:logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="auth-btn">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'pokehub:hub' %}" class="auth-btn">Home</a>
+                    <a href="{% url 'auths:login' %}" class="auth-btn">Login</a>
+                    <a href="{% url 'auths:register' %}" class="auth-btn">Register</a>
+                {% endif %}
+            </div>
+        </header>
+
+        <!-- Navigation/Search Bar -->
+        <div class="search-nav">
+            <button type="button" class="prev-btn" onclick="location.href='?q={{ query }}&page={{ page|add:-1 }}'">&lt;</button>
+            <form method="GET" action="">
+                <input
+                    type="text"
+                    name="q"
+                    placeholder="Search Pokémon by id, name, hp, or type..."
+                    value="{{ query }}"
+                />
+                <button type="submit" class="search-btn">Search</button>
+                <button type="button" class="return-btn" onclick="location.href='?q='">Return</button>
+                <button type="button" class="display-all-btn" onclick="location.href='?q=$$$all'">Display All</button>
+            </form>
+            <button type="button" class="next-btn" onclick="location.href='?q={{ query }}&page={{ page|add:1 }}'">&gt;</button>
+        </div>
+
         <div class="container">
             {% if query == "$$$all" %} {% for card in cards %}
             <div class="card" onclick="location.href='/pokemon/card/?id={{card.id}}'">
