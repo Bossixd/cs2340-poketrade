@@ -4,11 +4,14 @@ from django.contrib.auth import logout
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 
+from accounts.models import Profile
 
+
+# accounts/middleware.py
 class UserExistenceCheckMiddleware:
     """
-    Middleware to ensure authenticated users still exist in the database.
-    This handles cases where a user is deleted but their session remains active.
+    Middleware to ensure authenticated users still exist in the database
+    and have valid profiles.
     """
 
     def __init__(self, get_response):
@@ -20,8 +23,11 @@ class UserExistenceCheckMiddleware:
             try:
                 # Try to get the user from the database
                 User.objects.get(pk=request.user.pk)
-            except User.DoesNotExist:
-                # User no longer exists in database, logout and redirect
+
+                # Also check if profile exists
+                Profile.objects.get(user=request.user)
+            except (User.DoesNotExist, Profile.DoesNotExist):
+                # User or profile no longer exists in database, logout and redirect
                 logout(request)
                 return redirect('auths:login')
 

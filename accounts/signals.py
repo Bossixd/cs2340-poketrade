@@ -1,9 +1,8 @@
 # accounts/signals.py
-
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.auth.models import User
-from .models import Profile, ProfileCards
+from .models import Profile
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
@@ -13,6 +12,15 @@ def create_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.get_or_create(user=instance)
 
-# Note: We don't need a separate post_delete signal for Profile deletion
-# because we're using OneToOneField with CASCADE, which will automatically
-# delete the Profile when the User is deleted
+@receiver(post_delete, sender=Profile)
+def delete_user_on_profile_deletion(sender, instance, **kwargs):
+    """
+    Delete the User when their Profile is deleted
+    """
+    try:
+        # Check if the user still exists to avoid errors
+        if instance.user and User.objects.filter(pk=instance.user.pk).exists():
+            instance.user.delete()
+    except User.DoesNotExist:
+        # User already deleted
+        pass
