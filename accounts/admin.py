@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from .models import Profile, ProfileCards
+from django.utils.html import format_html
+from django.urls import reverse
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'currency', 'is_banned', 'user_status')
@@ -9,14 +11,31 @@ class ProfileAdmin(admin.ModelAdmin):
     list_filter = ('is_banned', 'user__is_staff')
     search_fields = ('user__username',)
     actions = ['add_currency', 'reset_currency']
+    readonly_fields = ('get_cards',)
     
     fieldsets = (
-        (None, {'fields': ('user', 'currency', 'cards')}),
+        (None, {'fields': ('user', 'currency', 'get_cards')}),
         ('Moderation', {
             'fields': ('is_banned',),
             'classes': ('collapse',),
         }),
     )
+    
+    def get_cards(self, obj):
+        # Get all ProfileCards for this profile
+        profile_cards = ProfileCards.objects.filter(profile=obj)
+        
+        # Create HTML links for each Card
+        links = []
+        for pc in profile_cards:
+            url = reverse('admin:pokemon_card_change', args=(pc.cards.id,))
+            links.append(
+                f'<a href="{url}">{pc.cards.pokemon_info.name}</a>'
+            )
+        
+        return format_html('<br>'.join(links)) if links else "No cards"
+    
+    get_cards.short_description = 'Cards'
     
     def user_status(self, obj):
         if obj.user.is_superuser:
