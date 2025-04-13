@@ -57,7 +57,7 @@ def login(request):
         password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            profile = Profile.objects.get(user=request.user)
+            profile = Profile.objects.get(user=user)
             if profile.is_banned:
                 return render(request, 'auths/login.html', {
                     "error": "Your account has been banned. Please contact support."
