@@ -15,4 +15,6 @@ urlpatterns = [
     
     # Currency management
     path('currency/add/', views.add_currency, name='add_currency'),
+    path('logout/', views.logout, name='logout')
+
 ]
