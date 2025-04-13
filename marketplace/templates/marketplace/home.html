@@ -4,7 +4,7 @@
         {% load static %}
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Card Gallery</title>
+        <title>Marketplace</title>
         <style>
             /* Header/Menu Bar Styles */
             header {
@@ -44,73 +44,208 @@
                 font-weight: bold;
                 color: #ffd700;
                 margin-right: 15px;
+                background: rgba(0, 0, 0, 0.3);
+                padding: 8px 12px;
+                border-radius: 4px;
             }
-            /* Navigation/Search Bar Styles */
-            .search-nav {
-                display: flex;
-                gap: 12px;
-                align-items: center;
-                justify-content: center;
-                margin: 20px 0;
+
+            /* Filter/Control Panel Styles */
+            .marketplace-controls {
+                background: #f0f4f8;
+                padding: 20px;
+                border-radius: 8px;
+                margin: 20px auto;
+                max-width: 1200px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
-            .search-nav button,
-            .search-nav input {
-                padding: 10px 15px;
-                border-radius: 5px;
-                border: none;
-                cursor: pointer;
-            }
-            .search-nav input {
-                width: 400px;
-                border: 1px solid #ccc;
-            }
-            .search-nav .prev-btn,
-            .search-nav .next-btn {
-                background-color: rgb(228, 70, 70);
-                color: white;
-            }
-            .search-nav .search-btn {
-                background-color: #4caf50;
-                color: white;
-            }
-            .search-nav .return-btn {
-                background-color: #000000;
-                color: white;
-            }
-            .search-nav .display-all-btn {
-                background-color: #008cba;
-                color: white;
-            }
-            /* Overall Body & Container Styles */
-            body {
-                margin: 0;
-                padding: 0;
-                font-family: Arial, sans-serif;
-                background-color: #f0f4f8;
-            }
-            .container {
+            .filter-form {
                 display: flex;
                 flex-wrap: wrap;
+                gap: 15px;
+                align-items: center;
+            }
+            .filter-group {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .filter-group label {
+                font-weight: bold;
+                color: #444;
+            }
+            .filter-group input, .filter-group select {
+                padding: 8px 12px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+            .action-buttons {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 15px;
+            }
+            .primary-btn {
+                background: #4caf50;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+                text-decoration: none;
+            }
+            .primary-btn:hover {
+                background: #3d8b40;
+            }
+            .secondary-btn {
+                background: #ff9800;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+                text-decoration: none;
+            }
+            .secondary-btn:hover {
+                background: #e68a00;
+            }
+
+            /* Listings Grid Styles */
+            .listings-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+                gap: 20px;
+                max-width: 1200px;
+                margin: 0 auto 40px auto;
+            }
+            .listing-card {
+                background: white;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                display: flex;
+                flex-direction: column;
+                transition: transform 0.2s;
+            }
+            .listing-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            }
+            .card-image {
+                height: 200px;
+                display: flex;
                 justify-content: center;
+                align-items: center;
+                background: #f5f5f5;
+                overflow: hidden;
+            }
+            .card-image img {
+                max-width: 90%;
+                max-height: 90%;
+            }
+            .card-info {
+                padding: 15px;
+            }
+            .card-name {
+                font-weight: bold;
+                font-size: 18px;
+                margin-bottom: 5px;
+            }
+            .card-type {
+                color: #666;
+                margin-bottom: 10px;
+            }
+            .card-price {
+                font-weight: bold;
+                color: #e67700;
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+            .card-actions {
+                padding: 0 15px 15px 15px;
+                margin-top: auto;
+            }
+            .buy-btn {
+                display: block;
+                width: 100%;
+                padding: 10px;
+                background: #4caf50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+                text-align: center;
+            }
+            .buy-btn:hover {
+                background: #3d8b40;
+            }
+            .buy-btn[disabled] {
+                background: #cccccc;
+                cursor: not-allowed;
+            }
+
+            /* Message Banner */
+            .message-container {
                 max-width: 1200px;
                 margin: 20px auto;
             }
-            .card {
-                background-color: #ffffff;
-                border-radius: 10px;
-                margin: 15px;
-                padding: 15px;
-                width: 200px;
+            .message {
+                padding: 10px 15px;
+                border-radius: 4px;
+                margin-bottom: 10px;
+            }
+            .message.success {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+            .message.error {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+
+            /* Pagination Styles */
+            .pagination {
+                display: flex;
+                justify-content: center;
+                margin: 20px 0;
+                gap: 5px;
+            }
+            .pagination a, .pagination .current {
+                padding: 8px 12px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                text-decoration: none;
+                color: #007bff;
+            }
+            .pagination .current {
+                background-color: #007bff;
+                color: white;
+                border-color: #007bff;
+            }
+            .pagination a:hover {
+                background-color: #f0f0f0;
+            }
+
+            /* Empty state */
+            .empty-state {
                 text-align: center;
-                transition: transform 0.3s ease;
+                padding: 40px 20px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                max-width: 600px;
+                margin: 40px auto;
             }
-            .card:hover {
-                transform: translateY(-10px);
+            .empty-state h3 {
+                color: #333;
+                margin-bottom: 10px;
             }
-            .card img {
-                max-width: 100%;
-                border-radius: 5px;
-                margin-top: 10px;
+            .empty-state p {
+                color: #666;
+                margin-bottom: 20px;
             }
         </style>
     </head>
@@ -121,14 +256,129 @@
                 <h2><a href="/pokehub/hub">PokéHub</a></h2>
             </div>
             <!-- Using a flex container for the button group -->
-            <div class="auth-controls" style="display: flex; gap: 10px; align-items: center;">
+            <div class="auth-controls">
+                {% if profile %}
+                <div class="currency-display">
+                    Coins: {{ profile.currency }}
+                </div>
+                {% endif %}
                 <a href="{% url 'pokehub:hub' %}" class="auth-btn">Home</a>
                 <a href="{% url 'marketplace:roll' %}" class="auth-btn">Summon</a>
+                <a href="{% url 'marketplace:my_listings' %}" class="auth-btn">My Listings</a>
+                <a href="{% url 'accounts:profile' %}" class="auth-btn">My Profile</a>
                 <form action="{% url 'auths:logout' %}" method="post" style="margin: 0;">
                     {% csrf_token %}
                     <button type="submit" class="auth-btn">Logout</button>
                 </form>
             </div>
         </header>
+
+        <!-- Message container for notifications -->
+        <div class="message-container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- Marketplace Controls -->
+        <div class="marketplace-controls">
+            <form class="filter-form" method="GET" action="{% url 'marketplace:home' %}">
+                <div class="filter-group">
+                    <label for="search">Search:</label>
+                    <input type="text" id="search" name="q" placeholder="Pokémon name or type..." value="{{ search_query }}">
+                </div>
+                <div class="filter-group">
+                    <label for="min_price">Min Price:</label>
+                    <input type="number" id="min_price" name="min_price" placeholder="Min" min="1" max="999999" value="{{ min_price }}">
+                </div>
+                <div class="filter-group">
+                    <label for="max_price">Max Price:</label>
+                    <input type="number" id="max_price" name="max_price" placeholder="Max" min="1" max="999999" value="{{ max_price }}">
+                </div>
+                <div class="filter-group">
+                    <label for="sort">Sort By:</label>
+                    <select id="sort" name="sort">
+                        <option value="-listed_at" {% if sort_by == '-listed_at' %}selected{% endif %}>Newest First</option>
+                        <option value="listed_at" {% if sort_by == 'listed_at' %}selected{% endif %}>Oldest First</option>
+                        <option value="price" {% if sort_by == 'price' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="-price" {% if sort_by == '-price' %}selected{% endif %}>Price: High to Low</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button type="submit" class="auth-btn">Apply Filters</button>
+                    <a href="{% url 'marketplace:home' %}" class="auth-btn" style="background: #dc3545;">Reset</a>
+                </div>
+            </form>
+
+            <div class="action-buttons">
+                <a href="{% url 'marketplace:list_card' %}" class="primary-btn">List a Card for Sale</a>
+                <a href="{% url 'marketplace:my_listings' %}" class="secondary-btn">View My Listings</a>
+            </div>
+        </div>
+
+        <!-- Listings Display -->
+        {% if listings %}
+            <div class="listings-container">
+                {% for listing in listings %}
+                <div class="listing-card">
+                    <div class="card-image">
+                        <img src="{{ listing.card.small_image }}" alt="{{ listing.card.pokemon_info.name }}">
+                    </div>
+                    <div class="card-info">
+                        <div class="card-name">{{ listing.card.pokemon_info.name }}</div>
+                        <div class="card-type">Type: {{ listing.card.type }}</div>
+                        <div class="card-type">HP: {{ listing.card.hp }}</div>
+                        <div class="card-price">{{ listing.price }} Coins</div>
+                        <div class="card-seller">Seller: {{ listing.seller.user.username }}</div>
+                    </div>
+                    <div class="card-actions">
+                        <form method="POST" action="{% url 'marketplace:buy_card' listing.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="buy-btn" {% if profile.currency < listing.price or listing.seller.user == user %}disabled{% endif %}>
+                                {% if profile.currency < listing.price %}
+                                    Not Enough Coins
+                                {% elif listing.seller.user == user %}
+                                    Your Listing
+                                {% else %}
+                                    Buy Now
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                {% if listings.has_previous %}
+                    <a href="?q={{ search_query }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort_by }}&page=1">&laquo; First</a>
+                    <a href="?q={{ search_query }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort_by }}&page={{ listings.previous_page_number }}">Previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ listings.number }} of {{ listings.paginator.num_pages }}
+                </span>
+
+                {% if listings.has_next %}
+                    <a href="?q={{ search_query }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort_by }}&page={{ listings.next_page_number }}">Next</a>
+                    <a href="?q={{ search_query }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort_by }}&page={{ listings.paginator.num_pages }}">Last &raquo;</a>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>No listings found</h3>
+                <p>There are currently no cards available in the marketplace matching your filters.</p>
+                {% if search_query or min_price or max_price %}
+                    <a href="{% url 'marketplace:home' %}" class="primary-btn">Clear Filters</a>
+                {% else %}
+                    <a href="{% url 'marketplace:list_card' %}" class="primary-btn">List Your Card</a>
+                {% endif %}
+            </div>
+        {% endif %}
     </body>
 </html>
