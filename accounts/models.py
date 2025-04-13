@@ -1,13 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 from pokemon.models import Card
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 
 class Profile(models.Model):
-    # Change from ForeignKey to OneToOneField with CASCADE deletion
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     is_banned = models.BooleanField(default=False)
     currency = models.PositiveIntegerField(default=1000)
 

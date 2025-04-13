@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login as auth_login, logout
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 
 from django.contrib.auth.models import auth
 from django.core.validators import validate_email
@@ -99,7 +99,15 @@ def login(request):
     elif request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
+
+        # First, check if the user exists in the database
+        if not User.objects.filter(username=username).exists():
+            context["error"] = "Invalid login credentials."
+            return render(request, 'auths/login.html', context)
+
+        # If the user exists, then try to authenticate
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
             # Try to get the profile, create one if it doesn't exist
             try:
@@ -117,39 +125,43 @@ def login(request):
 
         context["error"] = "Invalid login credentials."
         return render(request, 'auths/login.html', context)
+
+
 def logout(request):
-    auth.logout(request)
+    auth_logout(request)
     # Redirect to hub page instead of homepage
     return redirect("/pokehub/hub?page=1")
+
 
 def reset(request):
     if request.method == "GET":
         return render(request, 'auths/reset.html')
     elif request.method == "POST":
-        
+
         if not User.objects.filter(email=request.POST["email"]).exists():
             return render(request, 'auths/reset.html', {
                 "error_type": "email",
                 "error": "Email does not exist!"
             })
-        
+
         if request.POST["password"] != request.POST["confirm_password"]:
             return render(request, 'auths/reset.html', {
                 "error_type": "password",
                 "error": "Passwords do not match!"
             })
-            
+
         try:
             validate_password(request.POST["password"])
         except:
-            return render(request, 'auths/register.html', {
+            return render(request, 'auths/reset.html', {
                 "error_type": "password",
                 "error": "Password is not strong enough!"
             })
-        
+
         User.objects.filter(email=request.POST["email"]).update(password=make_password(request.POST["password"]))
-            
+
         return render(request, 'auths/login.html')
+
 
 def admin_login(request):
     error = None
