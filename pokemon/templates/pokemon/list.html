@@ -125,13 +125,13 @@
                     <div class="currency-display" title="Your PokéCoins">
                         Coins: {{ profile.currency }}
                     </div>
-                    <!-- Marketplace link shown only when user is logged in -->
-                    <a href="{% url 'marketplace:home' %}" class="auth-btn">Marketplace</a>
+                    <a href="{% url 'pokehub:hub' %}" class="auth-btn">Home</a>
                     <form action="{% url 'auths:logout' %}" method="post">
                         {% csrf_token %}
                         <button type="submit" class="auth-btn">Logout</button>
                     </form>
                 {% else %}
+                    <a href="{% url 'pokehub:hub' %}" class="auth-btn">Home</a>
                     <a href="{% url 'auths:login' %}" class="auth-btn">Login</a>
                     <a href="{% url 'auths:register' %}" class="auth-btn">Register</a>
                 {% endif %}
