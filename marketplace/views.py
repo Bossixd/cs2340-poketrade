@@ -219,29 +219,28 @@ def buy_card(request, listing_id):
                 messages.error(request, 'You cannot buy your own card')
                 return redirect('marketplace:home')
 
-            # Process the transaction
+            # Get the profile card record before making any changes
+            profile_card = listing.profile_card
+
+            # Verify the card still belongs to the seller
+            if not profile_card or profile_card.profile != listing.seller:
+                messages.error(request, 'This card is no longer available for purchase')
+                return redirect('marketplace:home')
+
+            # Mark listing as inactive FIRST to prevent race conditions
+            listing.is_active = False
+            listing.save()
+
+            # Process the financial transaction
             buyer_profile.currency -= listing.price
             buyer_profile.save()
 
             listing.seller.currency += listing.price
             listing.seller.save()
 
-            # Transfer the card (we need to get the actual ProfileCards record)
-            profile_card = listing.profile_card
-            if profile_card:
-                # Change the profile reference on this card
-                profile_card.profile = buyer_profile
-                profile_card.save()
-            else:
-                # If for some reason we can't find the original ProfileCards entry, create a new one
-                ProfileCards.objects.create(
-                    profile=buyer_profile,
-                    cards=listing.card
-                )
-
-            # Mark listing as inactive
-            listing.is_active = False
-            listing.save()
+            # Transfer the card ownership
+            profile_card.profile = buyer_profile
+            profile_card.save()
 
             messages.success(request,
                              f'You have successfully purchased {listing.card.pokemon_info.name} for {listing.price} coins')
