@@ -379,7 +379,7 @@ def roll(request):
     # Check if user has enough currency
     if profile.currency < cost:
         messages.error(request, f"Not enough currency. You need {cost} currency to perform this roll.")
-        return redirect('marketplace:home')
+        return redirect('marketplace:roll')
 
     # Deduct currency
     profile.currency -= cost
