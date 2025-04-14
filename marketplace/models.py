@@ -36,8 +36,8 @@ class DesiredCard(models.Model):
     def __str__(self):
         return f"{self.card.pokemon_info.name} card by {self.seller.user.username} for {self.price} coins"
 
-    class Meta:
-        ordering = ['-listed_at']
+    # class Meta:
+    #     ordering = ['-listed_at']
 
     @property
     def profile_card(self):
