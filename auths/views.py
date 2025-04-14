@@ -8,12 +8,16 @@ from django.contrib.auth.models import auth
 from django.core.validators import validate_email
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import make_password
+from django.core.mail import send_mail
+from django.conf import settings
+
 
 from django.contrib.auth.models import User
 from accounts.models import Profile, ProfileCards
 from pokemon.models import Card
 
 import random
+import string
 
 
 def register(request):
@@ -132,35 +136,90 @@ def logout(request):
     # Redirect to hub page instead of homepage
     return redirect("/pokehub/hub?page=1")
 
+def generate_confirmation_code(length=6):
+    """Generate a random confirmation code"""
+    return ''.join(random.choices(string.digits, k=length))
 
 def reset(request):
     if request.method == "GET":
+        email = request.session.get('reset_email')
+        if email:
+            return render(request, 'auths/reset_confirm.html', {'email': email})
         return render(request, 'auths/reset.html')
+    
     elif request.method == "POST":
+        if 'email' in request.POST and 'password' not in request.POST:
+            email = request.POST["email"]
+            
+            if not User.objects.filter(email=email).exists():
+                return render(request, 'auths/reset.html', {
+                    "error_type": "email",
+                    "error": "Email does not exist!"
+                })
+            
+            confirmation_code = generate_confirmation_code()
+            request.session['reset_code'] = confirmation_code
+            request.session['reset_email'] = email
+            request.session['reset_code_attempts'] = 0
+            
+            send_mail(
+                'Password Reset Confirmation',
+                f'Your confirmation code is: {confirmation_code}',
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+            )
+            
+            return render(request, 'auths/reset_confirm.html', {'email': email})
+        
+        elif 'confirmation_code' in request.POST and 'password' in request.POST:
+            email = request.session.get('reset_email')
+            stored_code = request.session.get('reset_code')
+            submitted_code = request.POST.get('confirmation_code')
+            
+            if not email or not stored_code or submitted_code != stored_code:
+                attempts = request.session.get('reset_code_attempts', 0) + 1
+                request.session['reset_code_attempts'] = attempts
+                
+                if attempts >= 3:
+                    # Clear session after too many attempts
+                    del request.session['reset_code']
+                    del request.session['reset_email']
+                    del request.session['reset_code_attempts']
+                    return render(request, 'auths/reset.html', {
+                        "error": "Too many failed attempts. Please start over."
+                    })
+                
+                return render(request, 'auths/reset_confirm.html', {
+                    'email': email,
+                    'error': 'Invalid confirmation code. Please try again.'
+                })
+            
+            if request.POST["password"] != request.POST.get("confirm_password", ""):
+                return render(request, 'auths/reset_confirm.html', {
+                    'email': email,
+                    'error': "Passwords do not match!"
+                })
 
-        if not User.objects.filter(email=request.POST["email"]).exists():
-            return render(request, 'auths/reset.html', {
-                "error_type": "email",
-                "error": "Email does not exist!"
+            try:
+                validate_password(request.POST["password"])
+            except Exception as e:
+                return render(request, 'auths/reset_confirm.html', {
+                    'email': email,
+                    'error': "Password is not strong enough!"
+                })
+
+            User.objects.filter(email=email).update(password=make_password(request.POST["password"]))
+            
+            del request.session['reset_code']
+            del request.session['reset_email']
+            del request.session['reset_code_attempts']
+            
+            return render(request, 'auths/login.html', {
+                'success': 'Your password has been reset successfully. Please login with your new password.'
             })
 
-        if request.POST["password"] != request.POST["confirm_password"]:
-            return render(request, 'auths/reset.html', {
-                "error_type": "password",
-                "error": "Passwords do not match!"
-            })
-
-        try:
-            validate_password(request.POST["password"])
-        except:
-            return render(request, 'auths/reset.html', {
-                "error_type": "password",
-                "error": "Password is not strong enough!"
-            })
-
-        User.objects.filter(email=request.POST["email"]).update(password=make_password(request.POST["password"]))
-
-        return render(request, 'auths/login.html')
+    return render(request, 'auths/reset.html')
 
 
 def admin_login(request):
