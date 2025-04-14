@@ -354,15 +354,17 @@ def buy_card(request, listing_id):
 
 @login_required
 def roll(request):
-    if request.method != "POST":
-        return redirect('marketplace:home')
-
-    element_type = request.POST.get("element_type")
-    roll_type = request.POST.get("roll_type", "single")  # single or ten
-
     # Validate element type
     valid_types = ['fire', 'water', 'grass', 'electric', 'psychic', 'fighting',
                    'dark', 'steel', 'fairy', 'dragon', 'colorless']
+    
+    desired_card = DesiredCard.objects.get(profile=Profile.objects.get(user=request.user))
+    
+    if request.method != "POST":
+        return render(request, 'marketplace/roll.html', context={'element_types': valid_types, 'desired_card': desired_card})
+
+    element_type = request.POST.get("element_type")
+    roll_type = request.POST.get("roll_type", "single")  # single or ten
 
     if element_type not in valid_types:
         messages.error(request, "Invalid element type selected.")
