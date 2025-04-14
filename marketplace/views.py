@@ -171,7 +171,7 @@ def set_desired(request):
 
             messages.success(request, f"{card.pokemon_info.name} has been set as your desired card!")
 
-    return redirect('marketplace:home')
+    return redirect('marketplace:roll')
 
 @login_required(login_url='auths:login')
 def my_listings(request):
