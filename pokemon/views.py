@@ -152,7 +152,8 @@ def card(request):
         'image_url': card_instance.large_image,
         'from': from_param,
         'query': query,
-        'page': page
+        'page': page,
+        'logged_in': request.user.is_authenticated
     }
     return render(request, 'pokemon/card.html', context=context)
 
