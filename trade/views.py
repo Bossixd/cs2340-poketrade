@@ -7,6 +7,7 @@ from django.db.models import Q
 from accounts.models import Profile, ProfileCards
 from pokemon.models import Card
 from .models import Trade, TradeCards
+from marketplace.models import CardListing
 
 
 # Remove the problematic import
@@ -227,6 +228,13 @@ def accept_trade(request, trade_id):
     # Process the trade
     if trade.accept_trade():
         messages.success(request, "Trade accepted successfully!")
+        
+        # Remove Cards from Marketplace
+        for trade_card in sender_cards:
+            CardListing.objects.filter(seller=trade.sender, card=trade_card.card).delete()
+
+        for trade_card in receiver_cards:
+            CardListing.objects.filter(seller=trade.receiver, card=trade_card.card).delete()
     else:
         messages.error(request, "There was an error processing the trade.")
 
