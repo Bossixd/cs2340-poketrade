@@ -8,6 +8,8 @@ from accounts.models import Profile, ProfileCards
 from pokemon.models import Card
 from .models import Trade, TradeCards
 from marketplace.models import CardListing
+from django.db import transaction
+
 
 
 # Remove the problematic import
@@ -189,7 +191,7 @@ def search_user_cards(request):
 
 @login_required(login_url='auths:login')
 def accept_trade(request, trade_id):
-    """Accept a trade offer"""
+    """Accept a trade offer with additional validation checks"""
     trade = get_object_or_404(Trade, id=trade_id)
     current_profile = Profile.objects.get(user=request.user)
 
@@ -212,34 +214,84 @@ def accept_trade(request, trade_id):
         messages.error(request, "The sender no longer has enough coins for this trade!")
         return redirect('trade:trade_detail', trade_id=trade.id)
 
-    # Verify both users still own all offered cards
+    # Get all cards involved in the trade
     sender_cards = TradeCards.objects.filter(trade=trade, offered_by=trade.sender)
+    receiver_cards = TradeCards.objects.filter(trade=trade, offered_by=trade.receiver)
+
+    # Verify both users still own all offered cards and they're not listed for sale
     for trade_card in sender_cards:
+        # Check if sender still owns the card
         if not ProfileCards.objects.filter(profile=trade.sender, cards=trade_card.card).exists():
             messages.error(request, "The sender no longer owns all offered cards!")
             return redirect('trade:trade_detail', trade_id=trade.id)
+        
+        # Check if card is listed for sale
+        if CardListing.objects.filter(seller=trade.sender, card=trade_card.card, is_active=True).exists():
+            messages.error(request, f"{trade_card.card.pokemon_info.name} is currently listed for sale and cannot be traded!")
+            return redirect('trade:trade_detail', trade_id=trade.id)
 
-    receiver_cards = TradeCards.objects.filter(trade=trade, offered_by=trade.receiver)
     for trade_card in receiver_cards:
+        # Check if receiver still owns the card
         if not ProfileCards.objects.filter(profile=trade.receiver, cards=trade_card.card).exists():
             messages.error(request, "You no longer own all requested cards!")
             return redirect('trade:trade_detail', trade_id=trade.id)
-
-    # Process the trade
-    if trade.accept_trade():
-        messages.success(request, "Trade accepted successfully!")
         
-        # Remove Cards from Marketplace
+        # Check if card is listed for sale
+        if CardListing.objects.filter(seller=trade.receiver, card=trade_card.card, is_active=True).exists():
+            messages.error(request, f"{trade_card.card.pokemon_info.name} is currently listed for sale and cannot be traded!")
+            return redirect('trade:trade_detail', trade_id=trade.id)
+
+    # Check if receiver would get a card they already own from sender
+    for trade_card in sender_cards:
+        if ProfileCards.objects.filter(profile=trade.receiver, cards=trade_card.card).exists():
+            messages.error(request, f"You already own {trade_card.card.pokemon_info.name}!")
+            return redirect('trade:trade_detail', trade_id=trade.id)
+
+    # Check if sender would get a card they already own from receiver
+    for trade_card in receiver_cards:
+        if ProfileCards.objects.filter(profile=trade.sender, cards=trade_card.card).exists():
+            messages.error(request, f"The sender already owns {trade_card.card.pokemon_info.name}!")
+            return redirect('trade:trade_detail', trade_id=trade.id)
+
+    # Process the trade with transaction atomic to ensure all operations complete successfully
+    with transaction.atomic():
+        # Update currency for both parties
+        trade.sender.currency -= trade.sender_currency_offer
+        trade.sender.currency += trade.receiver_currency_offer
+        trade.sender.save()
+
+        trade.receiver.currency -= trade.receiver_currency_offer
+        trade.receiver.currency += trade.sender_currency_offer
+        trade.receiver.save()
+
+        # Transfer cards from sender to receiver
         for trade_card in sender_cards:
-            CardListing.objects.filter(seller=trade.sender, card=trade_card.card).delete()
+            # Get the ProfileCards instance
+            profile_card = ProfileCards.objects.get(profile=trade.sender, cards=trade_card.card)
+            # Update ownership
+            profile_card.profile = trade.receiver
+            profile_card.save()
 
+        # Transfer cards from receiver to sender
         for trade_card in receiver_cards:
-            CardListing.objects.filter(seller=trade.receiver, card=trade_card.card).delete()
-    else:
-        messages.error(request, "There was an error processing the trade.")
+            # Get the ProfileCards instance
+            profile_card = ProfileCards.objects.get(profile=trade.receiver, cards=trade_card.card)
+            # Update ownership
+            profile_card.profile = trade.sender
+            profile_card.save()
 
+        # Remove any marketplace listings for these cards
+        CardListing.objects.filter(
+            Q(seller=trade.sender, card__in=[tc.card for tc in sender_cards]) |
+            Q(seller=trade.receiver, card__in=[tc.card for tc in receiver_cards])
+        ).delete()
+
+        # Update trade status
+        trade.status = 'accepted'
+        trade.save()
+
+    messages.success(request, "Trade accepted successfully!")
     return redirect('trade:trade_detail', trade_id=trade.id)
-
 
 @login_required(login_url='auths:login')
 def reject_trade(request, trade_id):

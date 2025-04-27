@@ -28,6 +28,7 @@ def hub_view(request):
         'user': request.user,
         'profile': profile,
         'cards': cards,
-        'page': int(page)
+        'page': int(page),
+        'admin': request.user.is_superuser
     }
     return render(request, 'pokehub/hub.html', context)

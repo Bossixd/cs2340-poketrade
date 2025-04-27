@@ -81,7 +81,6 @@ def generate(request):
     user = request.user
     if user is not None:
         # Check if the user is an admin. You can change this to your preferred flag.
-        print(user.is_staff)
         if not user.is_staff:
             return redirect('/landing')
     else:
@@ -147,7 +146,7 @@ def card(request):
         'id': card_instance.id,  # Include the card id here
         'name': card_instance.pokemon_info.name,
         'type': card_instance.type.split(",")[0].lower(),
-        'secondary_type': card_instance.type.split(",")[1].lower() if len(card_instance.type.split(",")) > 1 else None,
+        'secondary_type': card_instance.type.split(",")[1].lower()[1:] if len(card_instance.type.split(",")) > 1 else None,
         'hp': card_instance.hp,
         'image_url': card_instance.large_image,
         'from': from_param,

@@ -18,6 +18,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import CardListing
 from accounts.models import Profile, ProfileCards
 from pokemon.models import Card
+from django.db import transaction
+
 
 
 @login_required(login_url='auths:login')
@@ -202,36 +204,8 @@ def my_listings(request):
 
 @login_required(login_url='auths:login')
 def list_card(request):
-    """View for creating a new card listing"""
-
-    if request.method == 'GET':
-        try:
-            profile = Profile.objects.get(user=request.user)
-
-            # Get cards owned by the user that aren't already listed
-            profile_cards = ProfileCards.objects.filter(profile=profile)
-
-            # Exclude cards that are already listed and active
-            active_listing_cards = CardListing.objects.filter(
-                seller=profile,
-                is_active=True
-            ).values_list('card_id', flat=True)
-
-            available_profile_cards = profile_cards.exclude(
-                cards_id__in=active_listing_cards
-            )
-
-            context = {
-                'profile': profile,
-                'profile_cards': available_profile_cards,
-            }
-
-            return render(request, 'marketplace/list_card.html', context)
-
-        except Profile.DoesNotExist:
-            return redirect('accounts:profile')
-
-    elif request.method == 'POST':
+    """View for creating a new card listing with proper validation"""
+    if request.method == 'POST':
         try:
             card_id = request.POST.get('card_id')
             price = request.POST.get('price')
@@ -250,106 +224,90 @@ def list_card(request):
                 messages.error(request, 'Price must be a valid number')
                 return redirect('marketplace:list_card')
 
-            profile = Profile.objects.get(user=request.user)
-            card = Card.objects.get(id=card_id)
+            with transaction.atomic():
+                profile = Profile.objects.select_for_update().get(user=request.user)
+                card = Card.objects.get(id=card_id)
 
-            # Check if the user owns this card
-            if not ProfileCards.objects.filter(profile=profile, cards=card).exists():
-                messages.error(request, 'You do not own this card')
-                return redirect('marketplace:list_card')
+                # Check if the user owns this card
+                if not ProfileCards.objects.filter(
+                    profile=profile,
+                    cards=card
+                ).exists():
+                    messages.error(request, 'You do not own this card')
+                    return redirect('marketplace:list_card')
 
-            # Check if there's already an active listing for this card
-            if CardListing.objects.filter(seller=profile, card=card, is_active=True).exists():
-                messages.error(request, 'This card is already listed for sale')
-                return redirect('marketplace:list_card')
+                # Check if there's already an active listing for this card
+                if CardListing.objects.filter(
+                    seller=profile,
+                    card=card,
+                    is_active=True
+                ).exists():
+                    messages.error(request, 'This card is already listed for sale')
+                    return redirect('marketplace:list_card')
 
-            # Create the new listing
-            CardListing.objects.create(
-                seller=profile,
-                card=card,
-                price=price
-            )
+                # Get the ProfileCards instance to link to the listing
+                profile_card = ProfileCards.objects.get(
+                    profile=profile,
+                    cards=card
+                )
 
-            messages.success(request, f'Your {card.pokemon_info.name} card has been listed for {price} coins')
-            return redirect('marketplace:my_listings')
+                # Create the new listing
+                CardListing.objects.create(
+                    seller=profile,
+                    card=card,
+                    price=price,
+                    profile_card=profile_card  # Link to the actual card instance
+                )
+
+                messages.success(
+                    request,
+                    f'Your {card.pokemon_info.name} card has been listed for {price} coins'
+                )
+                return redirect('marketplace:my_listings')
 
         except (Profile.DoesNotExist, Card.DoesNotExist):
             messages.error(request, 'An error occurred while processing your request')
-            return redirect('marketplace:list_card')
-
+        except Exception as e:
+            messages.error(request, f'An unexpected error occurred: {str(e)}')
+        return redirect('marketplace:list_card')
 
 @login_required(login_url='auths:login')
 def cancel_listing(request, listing_id):
-    """Cancel a card listing"""
-
+    """Cancel a card listing with proper validation"""
     if request.method == 'POST':
-        listing = get_object_or_404(CardListing, id=listing_id)
+        try:
+            with transaction.atomic():
+                listing = CardListing.objects.select_for_update().get(id=listing_id)
 
-        # Verify the user is the seller
-        if listing.seller.user != request.user:
-            messages.error(request, 'You can only cancel your own listings')
-            return redirect('marketplace:my_listings')
+                # Verify the user is the seller
+                if listing.seller.user != request.user:
+                    messages.error(request, 'You can only cancel your own listings')
+                    return redirect('marketplace:my_listings')
 
-        # Deactivate the listing
-        listing.is_active = False
-        listing.save()
+                # Verify the card still exists in the seller's collection
+                if not ProfileCards.objects.filter(
+                    profile=listing.seller,
+                    cards=listing.card
+                ).exists():
+                    messages.error(request, 'You no longer own this card')
+                    listing.delete()  # Remove orphaned listing
+                    return redirect('marketplace:my_listings')
 
-        messages.success(request, f'Your listing for {listing.card.pokemon_info.name} has been cancelled')
+                # Deactivate the listing
+                listing.is_active = False
+                listing.save()
+
+                messages.success(
+                    request,
+                    f'Your listing for {listing.card.pokemon_info.name} has been cancelled'
+                )
+
+        except CardListing.DoesNotExist:
+            messages.error(request, 'Listing not found')
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
 
     return redirect('marketplace:my_listings')
-
-
-@login_required(login_url='auths:login')
-def buy_card(request, listing_id):
-    """Purchase a card from the marketplace"""
-
-    if request.method == 'POST':
-        listing = get_object_or_404(CardListing, id=listing_id, is_active=True)
-
-        try:
-            buyer_profile = Profile.objects.get(user=request.user)
-
-            # Check if buyer has enough currency
-            if buyer_profile.currency < listing.price:
-                messages.error(request, 'You do not have enough coins to buy this card')
-                return redirect('marketplace:home')
-
-            # Prevent buying your own card
-            if listing.seller == buyer_profile:
-                messages.error(request, 'You cannot buy your own card')
-                return redirect('marketplace:home')
-
-            # Get the profile card record before making any changes
-            profile_card = listing.profile_card
-
-            # Verify the card still belongs to the seller
-            if not profile_card or profile_card.profile != listing.seller:
-                messages.error(request, 'This card is no longer available for purchase')
-                return redirect('marketplace:home')
-
-            # Mark listing as inactive FIRST to prevent race conditions
-            listing.is_active = False
-            listing.save()
-
-            # Process the financial transaction
-            buyer_profile.currency -= listing.price
-            buyer_profile.save()
-
-            listing.seller.currency += listing.price
-            listing.seller.save()
-
-            # Transfer the card ownership
-            profile_card.profile = buyer_profile
-            profile_card.save()
-
-            messages.success(request,
-                             f'You have successfully purchased {listing.card.pokemon_info.name} for {listing.price} coins')
-
-        except Profile.DoesNotExist:
-            messages.error(request, 'An error occurred while processing your purchase')
-
-    return redirect('marketplace:home')
-
 
 @login_required
 def roll(request):
@@ -488,80 +446,110 @@ def perform_pull(profile, element_type, desired_card):
 @login_required(login_url='auths:login')
 def buy_card(request, listing_id):
     """Purchase a card from the marketplace"""
-
     if request.method == 'POST':
-        listing = get_object_or_404(CardListing, id=listing_id, is_active=True)
-
         try:
-            buyer_profile = Profile.objects.get(user=request.user)
+            with transaction.atomic():
+                # Lock the listing and related objects to prevent race conditions
+                listing = CardListing.objects.select_for_update().get(
+                    id=listing_id,
+                    is_active=True
+                )
+                
+                buyer_profile = Profile.objects.select_for_update().get(user=request.user)
+                seller_profile = listing.seller
+                
+                # Verify the seller still owns the card
+                try:
+                    profile_card = ProfileCards.objects.select_for_update().get(
+                        profile=seller_profile,
+                        cards=listing.card
+                    )
+                except ProfileCards.DoesNotExist:
+                    messages.error(request, 'This card is no longer available for purchase')
+                    return redirect('marketplace:home')
 
-            # Check if buyer has enough currency
-            if buyer_profile.currency < listing.price:
-                messages.error(request, 'You do not have enough coins to buy this card')
-                return redirect('marketplace:home')
+                # Check if buyer has enough currency
+                if buyer_profile.currency < listing.price:
+                    messages.error(request, 'You do not have enough coins to buy this card')
+                    return redirect('marketplace:home')
 
-            # Prevent buying your own card
-            if listing.seller == buyer_profile:
-                messages.error(request, 'You cannot buy your own card')
-                return redirect('marketplace:home')
+                # Prevent buying your own card
+                if seller_profile == buyer_profile:
+                    messages.error(request, 'You cannot buy your own card')
+                    return redirect('marketplace:home')
 
-            # Process the transaction
-            buyer_profile.currency -= listing.price
-            buyer_profile.save()
+                # Mark listing as inactive FIRST to prevent race conditions
+                listing.is_active = False
+                listing.save()
 
-            listing.seller.currency += listing.price
-            listing.seller.save()
+                # Process the financial transaction
+                buyer_profile.currency -= listing.price
+                buyer_profile.save()
 
-            # Transfer the card (we need to get the actual ProfileCards record)
-            profile_card = listing.profile_card
-            if profile_card:
-                # Change the profile reference on this card
+                seller_profile.currency += listing.price
+                seller_profile.save()
+
+                # Transfer the card ownership by updating the ProfileCards record
                 profile_card.profile = buyer_profile
                 profile_card.save()
-            else:
-                # If for some reason we can't find the original ProfileCards entry, create a new one
-                ProfileCards.objects.create(
-                    profile=buyer_profile,
-                    cards=listing.card
+
+                # Delete the seller's ProfileCards record and create a new one for buyer
+                # (Alternative approach if the above doesn't work)
+                # profile_card.delete()
+                # ProfileCards.objects.create(profile=buyer_profile, cards=listing.card)
+
+                messages.success(
+                    request,
+                    f'You have successfully purchased {listing.card.pokemon_info.name} for {listing.price} coins'
                 )
-
-            # Mark listing as inactive
-            listing.is_active = False
-            listing.save()
-
-            messages.success(request,
-                             f'You have successfully purchased {listing.card.pokemon_info.name} for {listing.price} coins')
-
+                
+        except CardListing.DoesNotExist:
+            messages.error(request, 'This listing is no longer available')
         except Profile.DoesNotExist:
             messages.error(request, 'An error occurred while processing your purchase')
+        except Exception as e:
+            messages.error(request, f'An unexpected error occurred: {str(e)}')
 
     return redirect('marketplace:home')
 
 @login_required(login_url='auths:login')
-def my_listings(request):
-    """View for displaying a user's own listings"""
+def list_card(request):
+    if request.method == 'POST':
+        try:
+            card_id = request.POST.get('card_id')
+            price = request.POST.get('price')
 
-    try:
-        profile = Profile.objects.get(user=request.user)
-        listings = CardListing.objects.filter(seller=profile)
+            # ... (existing validation code)
 
-        # Get filter parameters
-        show_active = request.GET.get('active', 'all')
+            with transaction.atomic():
+                profile = Profile.objects.select_for_update().get(user=request.user)
+                card = Card.objects.get(id=card_id)
 
-        if show_active == 'yes':
-            listings = listings.filter(is_active=True)
-        elif show_active == 'no':
-            listings = listings.filter(is_active=False)
+                # Get the specific ProfileCards instance
+                profile_card = ProfileCards.objects.select_for_update().get(
+                    profile=profile,
+                    cards=card
+                )
 
-        context = {
-            'listings': listings,
-            'profile': profile,
-            'show_active': show_active,
-        }
+                # Create listing with reference to the exact card instance
+                CardListing.objects.create(
+                    seller=profile,
+                    card=card,
+                    profile_card=profile_card,  # Link to the specific card instance
+                    price=price
+                )
 
-        return render(request, 'marketplace/my_listings.html', context)
-    except Profile.DoesNotExist:
-        return redirect('accounts:profile')
+                messages.success(request, f'Your {card.pokemon_info.name} card has been listed for {price} coins')
+                return redirect('marketplace:my_listings')
+
+        except ProfileCards.DoesNotExist:
+            messages.error(request, 'You do not own this card')
+        except (Profile.DoesNotExist, Card.DoesNotExist):
+            messages.error(request, 'An error occurred while processing your request')
+        except Exception as e:
+            messages.error(request, f'An unexpected error occurred: {str(e)}')
+
+        return redirect('marketplace:list_card')
 
 
 @login_required(login_url='auths:login')

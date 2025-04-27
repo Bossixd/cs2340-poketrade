@@ -23,8 +23,10 @@
 
             <div style="display: flex; flex-direction: column; padding: 12px; gap: 24px; font-size: 24px;">
                 <div style="display: flex; flex-direction: column;">
-                    Username
-                    <input type="text" name="username" id="username" placeholder="Username" size="70" style="line-height: 2em; font-size: 14px;">
+                    Email
+                    <input type="email" name="email" id="email" placeholder="Email" size="70" 
+                           style="line-height: 2em; font-size: 14px;"
+                           required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
                 </div>
                 <div style="display: flex; flex-direction: column;">
                     Password

@@ -19,6 +19,7 @@ class ElementType(models.Model):
 class CardListing(models.Model):
     seller = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='listings')
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
+    profile_card = models.ForeignKey(ProfileCards, on_delete=models.CASCADE, null=True, blank=True)  # Add this line
     price = models.PositiveIntegerField(
         validators=[
             MinValueValidator(1),
@@ -27,6 +28,16 @@ class CardListing(models.Model):
     )
     listed_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.card.pokemon_info.name} listed by {self.seller.user.username} for {self.price} coins"
+
+    @property
+    def get_profile_card(self):
+        """Returns the ProfileCards instance if not directly stored"""
+        if self.profile_card:
+            return self.profile_card
+        return ProfileCards.objects.filter(profile=self.seller, cards=self.card).first()
 
 class DesiredCard(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='desired_card')
