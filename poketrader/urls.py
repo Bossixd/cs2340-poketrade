@@ -20,8 +20,8 @@ from django.urls import path, include
 from django.views.generic.base import RedirectView
 
 urlpatterns = [
-# Redirect root URL to /pokehub/
-    path('', RedirectView.as_view(url='/pokehub/', permanent=False), name='index'),
+# Redirect root URL to /landing/
+    path('', RedirectView.as_view(url='/landing/', permanent=False), name='index'),
     path("admin/", admin.site.urls),
     path("auths/", include("auths.urls")),
     path("pokemon/", include("pokemon.urls")),
